@@ -1,7 +1,7 @@
 {
   "name": "vxe-table-plugin-export-pdf",
   "version": "1.0.0-alpha.4",
-  "description": "Based on vxe-table form the enhancement of plug-in, supporting export in PDF type.",
+  "description": "基于 vxe-table 表格的增强插件，支持导出 pdf 格式",
   "scripts": {
     "lib": "gulp build"
   },

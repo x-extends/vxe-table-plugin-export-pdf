@@ -6,7 +6,7 @@
 [![gzip size: JS](http://img.badgesize.io/https://unpkg.com/vxe-table-plugin-export-pdf/dist/index.min.js?compression=gzip&label=gzip%20size:%20JS)](https://unpkg.com/vxe-table-plugin-export-pdf/dist/index.min.js)
 [![npm license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/blob/master/LICENSE)
 
-Based on [vxe-table](https://github.com/xuliangzhan/vxe-table) form the enhancement of plug-in, supporting export in PDF type.
+基于 [vxe-table](https://github.com/xuliangzhan/vxe-table) 表格的增强插件，支持导出 pdf 格式
 
 ## Installing
 
