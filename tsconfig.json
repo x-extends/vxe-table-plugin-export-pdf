@@ -1,0 +1,17 @@
+{
+  "files": [
+    "index.d.ts",
+    "index.ts",
+    "depend.ts"
+  ],
+  "compilerOptions": {
+    "strict": true,
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "target": "es6",
+    "lib": [
+      "dom",
+      "es6"
+    ]
+  }
+}
