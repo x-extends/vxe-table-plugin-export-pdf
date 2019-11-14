@@ -5,7 +5,8 @@ import jsPDF from 'jspdf'
 function exportPDF(params: any) {
   let colWidth: number = 0
   const { $table, options, columns, datas } = params
-  const { type, filename, isHeader, isFooter, original, message, footerFilterMethod } = options
+  const { treeConfig, tableFullData } = $table
+  const { type, filename, isHeader, isFooter, original, data, message, footerFilterMethod } = options
   const colHead: any = {}
   const footList: any[] = []
   const headers: any[] = columns.map((column: any) => {
@@ -20,25 +21,47 @@ function exportPDF(params: any) {
       width: column.renderWidth
     }
   })
+  let rowList: any[] = [];
   const colRatio = colWidth / 100
   headers.forEach((column: any) => {
     column.width = Math.floor(column.width / colRatio * 4) - 1
   })
-  const rowList: any[] = datas.map((row: any, rowIndex: number) => {
-    const item: any = {}
-    columns.forEach((column: any, columnIndex: number) => {
-      let cellValue
-      const property = column.property
-      const isIndex = column.type === 'index'
-      if (!original || isIndex) {
-        cellValue = isIndex ? (column.indexMethod ? column.indexMethod({ row, rowIndex, column, columnIndex }) : rowIndex + 1) : row[column.id]
-      } else {
-        cellValue = XEUtils.get(row, property)
-      }
-      item[column.id] = XEUtils.toString(cellValue) || ' '
+  if (treeConfig) {
+    XEUtils.eachTree(data ? datas : tableFullData, (row: any, rowIndex: number, items: any, path: any[], parent: any, nodes: any[]) => {
+      const item: any = {}
+      columns.forEach((column: any, columnIndex: number) => {
+        let cellValue
+        const property = column.property
+        const isIndex = column.type === 'index'
+        if (!original || isIndex) {
+          cellValue = isIndex ? (column.indexMethod ? column.indexMethod({ row, rowIndex, column, columnIndex }) : rowIndex + 1) : row[column.id]
+        } else {
+          cellValue = XEUtils.get(row, property)
+        }
+        if (treeConfig && column.treeNode) {
+          cellValue = ' '.repeat((nodes.length - 1) * (treeConfig.indent || 16) / 8) + cellValue
+        }
+        item[column.id] = XEUtils.toString(cellValue) || ' '
+      })
+      rowList.push(item)
     })
-    return item
-  })
+  } else {
+    datas.forEach((row: any, rowIndex: number) => {
+      const item: any = {}
+      columns.forEach((column: any, columnIndex: number) => {
+        let cellValue
+        const property = column.property
+        const isIndex = column.type === 'index'
+        if (!original || isIndex) {
+          cellValue = isIndex ? (column.indexMethod ? column.indexMethod({ row, rowIndex, column, columnIndex }) : rowIndex + 1) : row[column.id]
+        } else {
+          cellValue = XEUtils.get(row, property)
+        }
+        item[column.id] = XEUtils.toString(cellValue) || ' '
+      })
+      rowList.push(item)
+    })
+  }
   if (isFooter) {
     const footerData: any[] = $table.footerData
     const footers: any[] = footerFilterMethod ? footerData.filter(footerFilterMethod) : footerData

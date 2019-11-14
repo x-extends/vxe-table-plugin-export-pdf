@@ -28,11 +28,14 @@
         options = params.options,
         columns = params.columns,
         datas = params.datas;
+    var treeConfig = $table.treeConfig,
+        tableFullData = $table.tableFullData;
     var type = options.type,
         filename = options.filename,
         isHeader = options.isHeader,
         isFooter = options.isFooter,
         original = options.original,
+        data = options.data,
         message = options.message,
         footerFilterMethod = options.footerFilterMethod;
     var colHead = {};
@@ -51,32 +54,63 @@
         width: column.renderWidth
       };
     });
+    var rowList = [];
     var colRatio = colWidth / 100;
     headers.forEach(function (column) {
       column.width = Math.floor(column.width / colRatio * 4) - 1;
     });
-    var rowList = datas.map(function (row, rowIndex) {
-      var item = {};
-      columns.forEach(function (column, columnIndex) {
-        var cellValue;
-        var property = column.property;
-        var isIndex = column.type === 'index';
 
-        if (!original || isIndex) {
-          cellValue = isIndex ? column.indexMethod ? column.indexMethod({
-            row: row,
-            rowIndex: rowIndex,
-            column: column,
-            columnIndex: columnIndex
-          }) : rowIndex + 1 : row[column.id];
-        } else {
-          cellValue = _xeUtils["default"].get(row, property);
-        }
+    if (treeConfig) {
+      _xeUtils["default"].eachTree(data ? datas : tableFullData, function (row, rowIndex, items, path, parent, nodes) {
+        var item = {};
+        columns.forEach(function (column, columnIndex) {
+          var cellValue;
+          var property = column.property;
+          var isIndex = column.type === 'index';
 
-        item[column.id] = _xeUtils["default"].toString(cellValue) || ' ';
+          if (!original || isIndex) {
+            cellValue = isIndex ? column.indexMethod ? column.indexMethod({
+              row: row,
+              rowIndex: rowIndex,
+              column: column,
+              columnIndex: columnIndex
+            }) : rowIndex + 1 : row[column.id];
+          } else {
+            cellValue = _xeUtils["default"].get(row, property);
+          }
+
+          if (treeConfig && column.treeNode) {
+            cellValue = ' '.repeat((nodes.length - 1) * (treeConfig.indent || 16) / 8) + cellValue;
+          }
+
+          item[column.id] = _xeUtils["default"].toString(cellValue) || ' ';
+        });
+        rowList.push(item);
       });
-      return item;
-    });
+    } else {
+      datas.forEach(function (row, rowIndex) {
+        var item = {};
+        columns.forEach(function (column, columnIndex) {
+          var cellValue;
+          var property = column.property;
+          var isIndex = column.type === 'index';
+
+          if (!original || isIndex) {
+            cellValue = isIndex ? column.indexMethod ? column.indexMethod({
+              row: row,
+              rowIndex: rowIndex,
+              column: column,
+              columnIndex: columnIndex
+            }) : rowIndex + 1 : row[column.id];
+          } else {
+            cellValue = _xeUtils["default"].get(row, property);
+          }
+
+          item[column.id] = _xeUtils["default"].toString(cellValue) || ' ';
+        });
+        rowList.push(item);
+      });
+    }
 
     if (isFooter) {
       var footerData = $table.footerData;
