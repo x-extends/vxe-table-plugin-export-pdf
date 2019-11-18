@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     exportEvent() {
-      this.$refs.exportData({
+      this.$refs.xTable.exportData({
         filename: 'export',
         type: 'pdf'
       })
