@@ -68,7 +68,7 @@ function exportPDF(params: any) {
     footers.forEach((rows: any[]) => {
       const item: any = {}
       columns.forEach((column: any) => {
-        item[column.id] = XEUtils.toString(rows[$table.getColumnIndex(column)]) || ' '
+        item[column.id] = XEUtils.toString(rows[$table.$getColumnIndex(column)]) || ' '
       })
       footList.push(item)
     })
