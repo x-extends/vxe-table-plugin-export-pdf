@@ -2,6 +2,13 @@ import XEUtils from 'xe-utils/methods/xe-utils'
 import VXETable from 'vxe-table/lib/vxe-table'
 import jsPDF from 'jspdf'
 
+function getSeq($table: any, row: any, rowIndex: number, column: any, columnIndex: number) {
+  // 在 v3.0 中废弃 startIndex、indexMethod
+  let seqOpts = $table.seqOpts
+  let seqMethod = seqOpts.seqMethod || column.indexMethod
+  return seqMethod ? seqMethod({ row, rowIndex, column, columnIndex }) : ((seqOpts.startIndex || $table.startIndex) + rowIndex + 1)
+}
+
 function exportPDF(params: any) {
   let colWidth: number = 0
   const { $table, options, columns, datas } = params
@@ -32,9 +39,9 @@ function exportPDF(params: any) {
       columns.forEach((column: any, columnIndex: number) => {
         let cellValue
         const property = column.property
-        const isIndex = column.type === 'index'
+        const isIndex = column.type === 'seq' || column.type === 'index'
         if (!original || isIndex) {
-          cellValue = isIndex ? (column.indexMethod ? column.indexMethod({ row, rowIndex, column, columnIndex }) : rowIndex + 1) : row[column.id]
+          cellValue = isIndex ? getSeq($table, row, rowIndex, column, columnIndex) : row[column.id]
         } else {
           cellValue = XEUtils.get(row, property)
         }
@@ -51,7 +58,7 @@ function exportPDF(params: any) {
       columns.forEach((column: any, columnIndex: number) => {
         let cellValue
         const property = column.property
-        const isIndex = column.type === 'index'
+        const isIndex = column.type === 'seq' || column.type === 'index'
         if (!original || isIndex) {
           cellValue = isIndex ? (column.indexMethod ? column.indexMethod({ row, rowIndex, column, columnIndex }) : rowIndex + 1) : row[column.id]
         } else {
