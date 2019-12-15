@@ -14,14 +14,10 @@ function exportPDF(params: any) {
   const { $table, options, columns, datas } = params
   const { treeConfig, tableFullData } = $table
   const { type, filename, isHeader, isFooter, original, data, message, footerFilterMethod } = options
-  const colHead: any = {}
   const footList: any[] = []
   const headers: any[] = columns.map((column: any) => {
     const title: string = XEUtils.toString(original ? column.property : column.getTitle()) || ' '
     colWidth += column.renderWidth
-    if (isHeader) {
-      colHead[column.id] = title
-    }
     return {
       name: column.id,
       prompt: title,
@@ -82,7 +78,7 @@ function exportPDF(params: any) {
   }
   // 转换pdf
   const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' });
-  doc.table(1, 1, (isHeader ? [colHead] : []).concat(rowList).concat(footList), headers, { printHeaders: false, autoSize: false });
+  doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false });
   doc.save(`${filename}.${type}`)
   if (message !== false) {
     $table.$XModal.message({ message: i18n('vxe.table.expSuccess'), status: 'success' })

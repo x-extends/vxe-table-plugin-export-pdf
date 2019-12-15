@@ -10,7 +10,7 @@
     factory(mod.exports, global.XEUtils, global.jsPDF);
     global.VXETablePluginExportPDF = mod.exports.default;
   }
-})(this, function (_exports, _xeUtils, _jspdf) {
+})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports, _xeUtils, _jspdf) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -21,6 +21,18 @@
   _jspdf = _interopRequireDefault(_jspdf);
 
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+  function getSeq($table, row, rowIndex, column, columnIndex) {
+    // 在 v3.0 中废弃 startIndex、indexMethod
+    var seqOpts = $table.seqOpts;
+    var seqMethod = seqOpts.seqMethod || column.indexMethod;
+    return seqMethod ? seqMethod({
+      row: row,
+      rowIndex: rowIndex,
+      column: column,
+      columnIndex: columnIndex
+    }) : (seqOpts.startIndex || $table.startIndex) + rowIndex + 1;
+  }
 
   function exportPDF(params) {
     var colWidth = 0;
@@ -38,16 +50,10 @@
         data = options.data,
         message = options.message,
         footerFilterMethod = options.footerFilterMethod;
-    var colHead = {};
     var footList = [];
     var headers = columns.map(function (column) {
       var title = _xeUtils["default"].toString(original ? column.property : column.getTitle()) || ' ';
       colWidth += column.renderWidth;
-
-      if (isHeader) {
-        colHead[column.id] = title;
-      }
-
       return {
         name: column.id,
         prompt: title,
@@ -66,15 +72,10 @@
         columns.forEach(function (column, columnIndex) {
           var cellValue;
           var property = column.property;
-          var isIndex = column.type === 'index';
+          var isIndex = column.type === 'seq' || column.type === 'index';
 
           if (!original || isIndex) {
-            cellValue = isIndex ? column.indexMethod ? column.indexMethod({
-              row: row,
-              rowIndex: rowIndex,
-              column: column,
-              columnIndex: columnIndex
-            }) : rowIndex + 1 : row[column.id];
+            cellValue = isIndex ? getSeq($table, row, rowIndex, column, columnIndex) : row[column.id];
           } else {
             cellValue = _xeUtils["default"].get(row, property);
           }
@@ -93,7 +94,7 @@
         columns.forEach(function (column, columnIndex) {
           var cellValue;
           var property = column.property;
-          var isIndex = column.type === 'index';
+          var isIndex = column.type === 'seq' || column.type === 'index';
 
           if (!original || isIndex) {
             cellValue = isIndex ? column.indexMethod ? column.indexMethod({
@@ -129,8 +130,8 @@
       putOnlyUsedFonts: true,
       orientation: 'landscape'
     });
-    doc.table(1, 1, (isHeader ? [colHead] : []).concat(rowList).concat(footList), headers, {
-      printHeaders: false,
+    doc.table(1, 1, rowList.concat(footList), headers, {
+      printHeaders: isHeader,
       autoSize: false
     });
     doc.save("".concat(filename, ".").concat(type));
