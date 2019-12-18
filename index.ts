@@ -12,7 +12,7 @@ function getSeq($table: any, row: any, rowIndex: number, column: any, columnInde
 function exportPDF(params: any) {
   let colWidth: number = 0
   const { $table, options, columns, datas } = params
-  const { treeConfig, tableFullData } = $table
+  const { treeConfig, treeOpts, tableFullData } = $table
   const { type, filename, isHeader, isFooter, original, data, message, footerFilterMethod } = options
   const footList: any[] = []
   const headers: any[] = columns.map((column: any) => {
@@ -30,40 +30,15 @@ function exportPDF(params: any) {
     column.width = Math.floor(column.width / colRatio * 4) - 1
   })
   if (treeConfig) {
-    XEUtils.eachTree(data ? datas : tableFullData, (row: any, rowIndex: number, items: any, path: any[], parent: any, nodes: any[]) => {
+    rowList = datas.map((row: any) => {
       const item: any = {}
-      columns.forEach((column: any, columnIndex: number) => {
-        let cellValue
-        const property = column.property
-        const isIndex = column.type === 'seq' || column.type === 'index'
-        if (!original || isIndex) {
-          cellValue = isIndex ? getSeq($table, row, rowIndex, column, columnIndex) : row[column.id]
-        } else {
-          cellValue = XEUtils.get(row, property)
-        }
-        if (treeConfig && column.treeNode) {
-          cellValue = ' '.repeat((nodes.length - 1) * (treeConfig.indent || 16) / 8) + cellValue
-        }
-        item[column.id] = XEUtils.toString(cellValue) || ' '
+      columns.forEach((column: any) => {
+        item[column.id] = column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id]
       })
-      rowList.push(item)
+      return item
     })
   } else {
-    datas.forEach((row: any, rowIndex: number) => {
-      const item: any = {}
-      columns.forEach((column: any, columnIndex: number) => {
-        let cellValue
-        const property = column.property
-        const isIndex = column.type === 'seq' || column.type === 'index'
-        if (!original || isIndex) {
-          cellValue = isIndex ? (column.indexMethod ? column.indexMethod({ row, rowIndex, column, columnIndex }) : rowIndex + 1) : row[column.id]
-        } else {
-          cellValue = XEUtils.get(row, property)
-        }
-        item[column.id] = XEUtils.toString(cellValue) || ' '
-      })
-      rowList.push(item)
-    })
+    rowList = datas
   }
   if (isFooter) {
     const footerData: any[] = $table.footerData

@@ -41,6 +41,7 @@
         columns = params.columns,
         datas = params.datas;
     var treeConfig = $table.treeConfig,
+        treeOpts = $table.treeOpts,
         tableFullData = $table.tableFullData;
     var type = options.type,
         filename = options.filename,
@@ -67,50 +68,15 @@
     });
 
     if (treeConfig) {
-      _xeUtils["default"].eachTree(data ? datas : tableFullData, function (row, rowIndex, items, path, parent, nodes) {
+      rowList = datas.map(function (row) {
         var item = {};
-        columns.forEach(function (column, columnIndex) {
-          var cellValue;
-          var property = column.property;
-          var isIndex = column.type === 'seq' || column.type === 'index';
-
-          if (!original || isIndex) {
-            cellValue = isIndex ? getSeq($table, row, rowIndex, column, columnIndex) : row[column.id];
-          } else {
-            cellValue = _xeUtils["default"].get(row, property);
-          }
-
-          if (treeConfig && column.treeNode) {
-            cellValue = ' '.repeat((nodes.length - 1) * (treeConfig.indent || 16) / 8) + cellValue;
-          }
-
-          item[column.id] = _xeUtils["default"].toString(cellValue) || ' ';
+        columns.forEach(function (column) {
+          item[column.id] = column.treeNode ? ' '.repeat(row._level * treeOpts.indent / 8) + row[column.id] : row[column.id];
         });
-        rowList.push(item);
+        return item;
       });
     } else {
-      datas.forEach(function (row, rowIndex) {
-        var item = {};
-        columns.forEach(function (column, columnIndex) {
-          var cellValue;
-          var property = column.property;
-          var isIndex = column.type === 'seq' || column.type === 'index';
-
-          if (!original || isIndex) {
-            cellValue = isIndex ? column.indexMethod ? column.indexMethod({
-              row: row,
-              rowIndex: rowIndex,
-              column: column,
-              columnIndex: columnIndex
-            }) : rowIndex + 1 : row[column.id];
-          } else {
-            cellValue = _xeUtils["default"].get(row, property);
-          }
-
-          item[column.id] = _xeUtils["default"].toString(cellValue) || ' ';
-        });
-        rowList.push(item);
-      });
+      rowList = datas;
     }
 
     if (isFooter) {
