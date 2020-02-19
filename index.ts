@@ -2,18 +2,16 @@ import XEUtils from 'xe-utils/methods/xe-utils'
 import VXETable from 'vxe-table/lib/vxe-table'
 import jsPDF from 'jspdf'
 
-function getSeq($table: any, row: any, rowIndex: number, column: any, columnIndex: number) {
-  // 在 v3.0 中废弃 startIndex、indexMethod
-  let seqOpts = $table.seqOpts
-  let seqMethod = seqOpts.seqMethod || column.indexMethod
-  return seqMethod ? seqMethod({ row, rowIndex, column, columnIndex }) : ((seqOpts.startIndex || $table.startIndex) + rowIndex + 1)
+function getFooterCellValue ($table: any, opts: any, rows: any[], column: any) {
+  var cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
+  return cellValue
 }
 
-function exportPDF(params: any) {
+function exportPDF (params: any) {
   let colWidth: number = 0
   const { $table, options, columns, datas } = params
-  const { treeConfig, treeOpts, tableFullData } = $table
-  const { type, filename, isHeader, isFooter, original, data, message, footerFilterMethod } = options
+  const { treeConfig, treeOpts } = $table
+  const { type, filename, isHeader, isFooter, original, message, footerFilterMethod } = options
   const footList: any[] = []
   const headers: any[] = columns.map((column: any) => {
     const title: string = XEUtils.toString(original ? column.property : column.getTitle()) || ' '
@@ -24,7 +22,7 @@ function exportPDF(params: any) {
       width: column.renderWidth
     }
   })
-  let rowList: any[] = [];
+  let rowList: any[] = []
   const colRatio = colWidth / 100
   headers.forEach((column: any) => {
     column.width = Math.floor(column.width / colRatio * 4) - 1
@@ -46,21 +44,22 @@ function exportPDF(params: any) {
     footers.forEach((rows: any[]) => {
       const item: any = {}
       columns.forEach((column: any) => {
-        item[column.id] = XEUtils.toString(rows[$table.$getColumnIndex(column)]) || ' '
+        item[column.id] = getFooterCellValue($table, options, rows, column)
       })
       footList.push(item)
     })
   }
   // 转换pdf
-  const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' });
-  doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false });
+  /* eslint-disable new-cap */
+  const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
+  doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false })
   doc.save(`${filename}.${type}`)
   if (message !== false) {
     $table.$XModal.message({ message: i18n('vxe.table.expSuccess'), status: 'success' })
   }
 }
 
-function handleExportEvent(params: any) {
+function handleExportEvent (params: any) {
   if (params.options.type === 'pdf') {
     exportPDF(params)
     return false
@@ -71,7 +70,7 @@ function handleExportEvent(params: any) {
  * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF: any = {
-  install(xtable: typeof VXETable) {
+  install (xtable: typeof VXETable) {
     Object.assign(xtable.types, { pdf: 0 })
     xtable.interceptor.mixin({
       'event.export': handleExportEvent
@@ -80,7 +79,7 @@ export const VXETablePluginExportPDF: any = {
   }
 }
 
-function i18n(key: string) {
+function i18n (key: string) {
   if (VXETablePluginExportPDF.t) {
     return VXETablePluginExportPDF.t(key)
   }

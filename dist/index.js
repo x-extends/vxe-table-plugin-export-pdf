@@ -10,7 +10,7 @@
     factory(mod.exports, global.XEUtils, global.jsPDF);
     global.VXETablePluginExportPDF = mod.exports.default;
   }
-})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports, _xeUtils, _jspdf) {
+})(this, function (_exports, _xeUtils, _jspdf) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -22,16 +22,10 @@
 
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-  function getSeq($table, row, rowIndex, column, columnIndex) {
-    // 在 v3.0 中废弃 startIndex、indexMethod
-    var seqOpts = $table.seqOpts;
-    var seqMethod = seqOpts.seqMethod || column.indexMethod;
-    return seqMethod ? seqMethod({
-      row: row,
-      rowIndex: rowIndex,
-      column: column,
-      columnIndex: columnIndex
-    }) : (seqOpts.startIndex || $table.startIndex) + rowIndex + 1;
+  function getFooterCellValue($table, opts, rows, column) {
+    var cellValue = _xeUtils["default"].toString(rows[$table.$getColumnIndex(column)]);
+
+    return cellValue;
   }
 
   function exportPDF(params) {
@@ -41,14 +35,12 @@
         columns = params.columns,
         datas = params.datas;
     var treeConfig = $table.treeConfig,
-        treeOpts = $table.treeOpts,
-        tableFullData = $table.tableFullData;
+        treeOpts = $table.treeOpts;
     var type = options.type,
         filename = options.filename,
         isHeader = options.isHeader,
         isFooter = options.isFooter,
         original = options.original,
-        data = options.data,
         message = options.message,
         footerFilterMethod = options.footerFilterMethod;
     var footList = [];
@@ -85,11 +77,13 @@
       footers.forEach(function (rows) {
         var item = {};
         columns.forEach(function (column) {
-          item[column.id] = _xeUtils["default"].toString(rows[$table.$getColumnIndex(column)]) || ' ';
+          item[column.id] = getFooterCellValue($table, options, rows, column);
         });
         footList.push(item);
       });
     } // 转换pdf
+
+    /* eslint-disable new-cap */
 
 
     var doc = new _jspdf["default"]({
