@@ -10,7 +10,7 @@
     factory(mod.exports, global.XEUtils, global.jsPDF);
     global.VXETablePluginExportPDF = mod.exports.default;
   }
-})(this, function (_exports, _xeUtils, _jspdf) {
+})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports, _xeUtils, _jspdf) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -30,10 +30,10 @@
 
   function exportPDF(params) {
     var colWidth = 0;
-    var $table = params.$table,
-        options = params.options,
+    var options = params.options,
         columns = params.columns,
         datas = params.datas;
+    var $table = params.$table;
     var treeConfig = $table.treeConfig,
         treeOpts = $table.treeOpts;
     var type = options.type,
@@ -72,7 +72,9 @@
     }
 
     if (isFooter) {
-      var footerData = $table.footerData;
+      var _$table$getTableData = $table.getTableData(),
+          footerData = _$table$getTableData.footerData;
+
       var footers = footerFilterMethod ? footerData.filter(footerFilterMethod) : footerData;
       footers.forEach(function (rows) {
         var item = {};

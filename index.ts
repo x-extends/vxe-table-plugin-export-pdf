@@ -1,19 +1,20 @@
 import XEUtils from 'xe-utils/methods/xe-utils'
-import VXETable from 'vxe-table/lib/vxe-table'
+import { VXETable, Table, InterceptorExportParams, ColumnConfig, ExportOptons } from 'vxe-table/lib/vxe-table' // eslint-disable-line no-unused-vars
 import jsPDF from 'jspdf'
 
-function getFooterCellValue ($table: any, opts: any, rows: any[], column: any) {
+function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], column: ColumnConfig) {
   var cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
   return cellValue
 }
 
-function exportPDF (params: any) {
+function exportPDF (params: InterceptorExportParams) {
   let colWidth: number = 0
-  const { $table, options, columns, datas } = params
+  const { options, columns, datas } = params
+  const $table: any = params.$table
   const { treeConfig, treeOpts } = $table
   const { type, filename, isHeader, isFooter, original, message, footerFilterMethod } = options
-  const footList: any[] = []
-  const headers: any[] = columns.map((column: any) => {
+  const footList: { [key: string]: any }[] = []
+  const headers: { [key: string]: any }[] = columns.map((column) => {
     const title: string = XEUtils.toString(original ? column.property : column.getTitle()) || ' '
     colWidth += column.renderWidth
     return {
@@ -22,15 +23,15 @@ function exportPDF (params: any) {
       width: column.renderWidth
     }
   })
-  let rowList: any[] = []
+  let rowList: { [key: string]: any }[] = []
   const colRatio = colWidth / 100
-  headers.forEach((column: any) => {
+  headers.forEach((column) => {
     column.width = Math.floor(column.width / colRatio * 4) - 1
   })
   if (treeConfig) {
-    rowList = datas.map((row: any) => {
+    rowList = datas.map((row) => {
       const item: any = {}
-      columns.forEach((column: any) => {
+      columns.forEach((column) => {
         item[column.id] = column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id]
       })
       return item
@@ -39,11 +40,11 @@ function exportPDF (params: any) {
     rowList = datas
   }
   if (isFooter) {
-    const footerData: any[] = $table.footerData
-    const footers: any[] = footerFilterMethod ? footerData.filter(footerFilterMethod) : footerData
+    const { footerData } = $table.getTableData()
+    const footers = footerFilterMethod ? footerData.filter(footerFilterMethod) : footerData
     footers.forEach((rows: any[]) => {
       const item: any = {}
-      columns.forEach((column: any) => {
+      columns.forEach((column) => {
         item[column.id] = getFooterCellValue($table, options, rows, column)
       })
       footList.push(item)
@@ -59,7 +60,7 @@ function exportPDF (params: any) {
   }
 }
 
-function handleExportEvent (params: any) {
+function handleExportEvent (params: InterceptorExportParams) {
   if (params.options.type === 'pdf') {
     exportPDF(params)
     return false
