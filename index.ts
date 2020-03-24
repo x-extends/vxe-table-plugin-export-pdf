@@ -1,6 +1,16 @@
+/* eslint-disable no-unused-vars */
 import XEUtils from 'xe-utils/methods/xe-utils'
-import { VXETable, Table, InterceptorExportParams, ColumnConfig, ExportOptons } from 'vxe-table/lib/vxe-table' // eslint-disable-line no-unused-vars
+import {
+  VXETable,
+  Table,
+  InterceptorExportParams,
+  ColumnConfig,
+  ExportOptons
+} from 'vxe-table/lib/vxe-table'
 import jsPDF from 'jspdf'
+/* eslint-enable no-unused-vars */
+
+let _vxetable: typeof VXETable
 
 function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], column: ColumnConfig) {
   var cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
@@ -56,7 +66,7 @@ function exportPDF (params: InterceptorExportParams) {
   doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false })
   doc.save(`${filename}.${type}`)
   if (message !== false) {
-    $table.$XModal.message({ message: i18n('vxe.table.expSuccess'), status: 'success' })
+    _vxetable.modal.message({ message: _vxetable.t('vxe.table.expSuccess'), status: 'success' })
   }
 }
 
@@ -70,19 +80,14 @@ function handleExportEvent (params: InterceptorExportParams) {
 /**
  * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
  */
-export const VXETablePluginExportPDF: any = {
+export const VXETablePluginExportPDF = {
   install (xtable: typeof VXETable) {
+    const { interceptor } = xtable
+    _vxetable = xtable
     Object.assign(xtable.types, { pdf: 0 })
-    xtable.interceptor.mixin({
+    interceptor.mixin({
       'event.export': handleExportEvent
     })
-    VXETablePluginExportPDF.t = xtable.t
-  }
-}
-
-function i18n (key: string) {
-  if (VXETablePluginExportPDF.t) {
-    return VXETablePluginExportPDF.t(key)
   }
 }
 

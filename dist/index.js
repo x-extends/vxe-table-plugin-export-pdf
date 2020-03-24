@@ -22,6 +22,11 @@
 
   function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+  /* eslint-disable no-unused-vars */
+
+  /* eslint-enable no-unused-vars */
+  var _vxetable;
+
   function getFooterCellValue($table, opts, rows, column) {
     var cellValue = _xeUtils["default"].toString(rows[$table.$getColumnIndex(column)]);
 
@@ -99,8 +104,8 @@
     doc.save("".concat(filename, ".").concat(type));
 
     if (message !== false) {
-      $table.$XModal.message({
-        message: i18n('vxe.table.expSuccess'),
+      _vxetable.modal.message({
+        message: _vxetable.t('vxe.table.expSuccess'),
         status: 'success'
       });
     }
@@ -119,22 +124,17 @@
 
   var VXETablePluginExportPDF = {
     install: function install(xtable) {
+      var interceptor = xtable.interceptor;
+      _vxetable = xtable;
       Object.assign(xtable.types, {
         pdf: 0
       });
-      xtable.interceptor.mixin({
+      interceptor.mixin({
         'event.export': handleExportEvent
       });
-      VXETablePluginExportPDF.t = xtable.t;
     }
   };
   _exports.VXETablePluginExportPDF = VXETablePluginExportPDF;
-
-  function i18n(key) {
-    if (VXETablePluginExportPDF.t) {
-      return VXETablePluginExportPDF.t(key);
-    }
-  }
 
   if (typeof window !== 'undefined' && window.VXETable) {
     window.VXETable.use(VXETablePluginExportPDF);
