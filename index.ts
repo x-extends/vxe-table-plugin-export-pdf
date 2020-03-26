@@ -40,7 +40,7 @@ function exportPDF (params: InterceptorExportParams) {
   })
   if (treeConfig) {
     rowList = datas.map((row) => {
-      const item: any = {}
+      const item: { [key: string]: any } = {}
       columns.forEach((column) => {
         item[column.id] = column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id]
       })
@@ -53,7 +53,7 @@ function exportPDF (params: InterceptorExportParams) {
     const { footerData } = $table.getTableData()
     const footers = footerFilterMethod ? footerData.filter(footerFilterMethod) : footerData
     footers.forEach((rows: any[]) => {
-      const item: any = {}
+      const item: { [key: string]: any } = {}
       columns.forEach((column) => {
         item[column.id] = getFooterCellValue($table, options, rows, column)
       })
