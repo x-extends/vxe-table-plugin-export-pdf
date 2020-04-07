@@ -13,12 +13,12 @@ import jsPDF from 'jspdf'
 let _vxetable: typeof VXETable
 
 function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], column: ColumnConfig) {
-  var cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
+  const cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
   return cellValue
 }
 
 function exportPDF (params: InterceptorExportParams) {
-  let colWidth: number = 0
+  let colWidth = 0
   const { options, columns, datas } = params
   const $table: any = params.$table
   const { treeConfig, treeOpts } = $table
