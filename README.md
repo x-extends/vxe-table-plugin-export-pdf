@@ -15,12 +15,10 @@ npm install xe-utils vxe-table vxe-table-plugin-export-pdf jspdf
 ```
 
 ```javascript
-import Vue from 'vue'
-import VXETable from 'vxe-table'
+// ...
 import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
-import 'vxe-table/lib/index.css'
+// ...
 
-Vue.use(VXETable)
 VXETable.use(VXETablePluginExportPDF)
 ```
 
