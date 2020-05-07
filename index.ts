@@ -25,7 +25,7 @@ function exportPDF (params: InterceptorExportParams) {
   const { type, filename, isHeader, isFooter, original, message, footerFilterMethod } = options
   const footList: { [key: string]: any }[] = []
   const headers: { [key: string]: any }[] = columns.map((column) => {
-    const title: string = XEUtils.toString(original ? column.property : column.getTitle()) || ' '
+    const title = XEUtils.toString(original ? column.property : column.getTitle()) || ' '
     colWidth += column.renderWidth
     return {
       name: column.id,
