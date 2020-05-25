@@ -10,6 +10,9 @@ import {
 import jsPDF from 'jspdf'
 /* eslint-enable no-unused-vars */
 
+const isWin = typeof window !== 'undefined'
+const globalOptions: VXETablePluginExportPDFOptions = {}
+const globalFonts: { [key: string]: any } = {}
 let _vxetable: typeof VXETable
 
 function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], column: ColumnConfig) {
@@ -19,10 +22,13 @@ function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], col
 
 function exportPDF (params: InterceptorExportParams) {
   let colWidth = 0
+  const msgKey = 'pdf'
+  const { fontName, fontUrl } = globalOptions
   const { options, columns, datas } = params
+  const showMsg = options.message !== false
   const $table: any = params.$table
   const { treeConfig, treeOpts } = $table
-  const { type, filename, isHeader, isFooter, original, message, footerFilterMethod } = options
+  const { type, filename, isHeader, isFooter, original, footerFilterMethod } = options
   const footList: { [key: string]: any }[] = []
   const headers: { [key: string]: any }[] = columns.map((column) => {
     const title = XEUtils.toString(original ? column.property : column.getTitle()) || ' '
@@ -60,14 +66,49 @@ function exportPDF (params: InterceptorExportParams) {
       footList.push(item)
     })
   }
-  // 转换pdf
-  /* eslint-disable new-cap */
-  const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
-  doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false })
-  doc.save(`${filename}.${type}`)
-  if (message !== false) {
-    _vxetable.modal.message({ message: _vxetable.t('vxe.table.expSuccess'), status: 'success' })
+  const exportMethod = () => {
+    /* eslint-disable new-cap */
+    const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
+    if (fontName && fontUrl) {
+      doc.addFont(fontName + '.ttf', fontName, 'normal')
+      doc.setFont(fontName, 'normal')
+    }
+    doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false })
+    doc.save(`${filename}.${type}`)
+    if (showMsg) {
+      _vxetable.modal.close(msgKey)
+      _vxetable.modal.message({ message: _vxetable.t('vxe.table.expSuccess'), status: 'success' })
+    }
   }
+  if (showMsg) {
+    _vxetable.modal.message({ id: msgKey, message: _vxetable.t('vxe.table.expLoading'), status: 'loading', duration: -1 })
+  }
+  // 转换pdf
+  checkFont().then(() => {
+    if (showMsg) {
+      setTimeout(exportMethod, 1000)
+    } else {
+      exportMethod()
+    }
+  })
+}
+
+function checkFont () {
+  const { fontName, fontUrl } = globalOptions
+  if (fontName && fontUrl) {
+    if (!globalFonts[fontName]) {
+      globalFonts[fontName] = new Promise((resolve, reject) => {
+        const fontScript = document.createElement('script')
+        fontScript.src = fontUrl
+        fontScript.type = 'text/javascript'
+        fontScript.onload = resolve
+        fontScript.onerror = reject
+        document.body.appendChild(fontScript)
+      })
+      return globalFonts[fontName]
+    }
+  }
+  return new Promise(resolve => setTimeout(resolve, 1000))
 }
 
 function handleExportEvent (params: InterceptorExportParams) {
@@ -77,21 +118,48 @@ function handleExportEvent (params: InterceptorExportParams) {
   }
 }
 
+interface VXETablePluginExportPDFOptions {
+  fontName?: 'SourceHanSans-Bold';
+  fontUrl?: string;
+}
+
+function setup (options: VXETablePluginExportPDFOptions) {
+  const { fontName, fontUrl } = Object.assign(globalOptions, options)
+  if (fontName) {
+    if (!fontUrl) {
+      throw new Error('The fontUrl cannot be empty.')
+    }
+    if (isWin && !window.jsPDF) {
+      window.jsPDF = jsPDF
+    }
+  }
+}
+
+declare global {
+  interface Window {
+    jsPDF: any;
+  }
+}
+
 /**
  * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF = {
-  install (xtable: typeof VXETable) {
+  setup,
+  install (xtable: typeof VXETable, options?: VXETablePluginExportPDFOptions) {
     const { interceptor } = xtable
     _vxetable = xtable
     Object.assign(xtable.types, { pdf: 0 })
     interceptor.mixin({
       'event.export': handleExportEvent
     })
+    if (options) {
+      setup(options)
+    }
   }
 }
 
-if (typeof window !== 'undefined' && window.VXETable) {
+if (isWin && window.VXETable) {
   window.VXETable.use(VXETablePluginExportPDF)
 }
 

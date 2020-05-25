@@ -22,12 +22,25 @@ import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
 VXETable.use(VXETablePluginExportPDF)
 ```
 
+## Font
+
+```javascript
+// ...
+import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
+// ...
+
+VXETablePluginExportPDF.setup({
+  fontName: 'SourceHanSans-Bold', // 指定字体
+  fontUrl: 'https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-bold.js' // 字体库下载路径，可以将包下载放到自己服务器中
+})
+```
+
 ## Demo
 
 ```html
 <vxe-toolbar>
   <template v-slot:buttons>
-    <vxe-button @click="exportEvent">export.pdf</vxe-button>
+    <vxe-button @click="exportEvent">MyExport.pdf</vxe-button>
   </template>
 </vxe-toolbar>
 
@@ -60,7 +73,7 @@ export default {
   methods: {
     exportEvent() {
       this.$refs.xTable.exportData({
-        filename: 'export',
+        filename: 'MyExport',
         type: 'pdf'
       })
     }

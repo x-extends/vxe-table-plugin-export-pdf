@@ -25,6 +25,10 @@
   /* eslint-disable no-unused-vars */
 
   /* eslint-enable no-unused-vars */
+  var isWin = typeof window !== 'undefined';
+  var globalOptions = {};
+  var globalFonts = {};
+
   var _vxetable;
 
   function getFooterCellValue($table, opts, rows, column) {
@@ -35,9 +39,13 @@
 
   function exportPDF(params) {
     var colWidth = 0;
+    var msgKey = 'pdf';
+    var fontName = globalOptions.fontName,
+        fontUrl = globalOptions.fontUrl;
     var options = params.options,
         columns = params.columns,
         datas = params.datas;
+    var showMsg = options.message !== false;
     var $table = params.$table;
     var treeConfig = $table.treeConfig,
         treeOpts = $table.treeOpts;
@@ -46,7 +54,6 @@
         isHeader = options.isHeader,
         isFooter = options.isFooter,
         original = options.original,
-        message = options.message,
         footerFilterMethod = options.footerFilterMethod;
     var footList = [];
     var headers = columns.map(function (column) {
@@ -88,27 +95,76 @@
         });
         footList.push(item);
       });
+    }
+
+    var exportMethod = function exportMethod() {
+      /* eslint-disable new-cap */
+      var doc = new _jspdf["default"]({
+        putOnlyUsedFonts: true,
+        orientation: 'landscape'
+      });
+
+      if (fontName && fontUrl) {
+        doc.addFont(fontName + '.ttf', fontName, 'normal');
+        doc.setFont(fontName, 'normal');
+      }
+
+      doc.table(1, 1, rowList.concat(footList), headers, {
+        printHeaders: isHeader,
+        autoSize: false
+      });
+      doc.save("".concat(filename, ".").concat(type));
+
+      if (showMsg) {
+        _vxetable.modal.close(msgKey);
+
+        _vxetable.modal.message({
+          message: _vxetable.t('vxe.table.expSuccess'),
+          status: 'success'
+        });
+      }
+    };
+
+    if (showMsg) {
+      _vxetable.modal.message({
+        id: msgKey,
+        message: _vxetable.t('vxe.table.expLoading'),
+        status: 'loading',
+        duration: -1
+      });
     } // 转换pdf
 
-    /* eslint-disable new-cap */
 
-
-    var doc = new _jspdf["default"]({
-      putOnlyUsedFonts: true,
-      orientation: 'landscape'
+    checkFont().then(function () {
+      if (showMsg) {
+        setTimeout(exportMethod, 1000);
+      } else {
+        exportMethod();
+      }
     });
-    doc.table(1, 1, rowList.concat(footList), headers, {
-      printHeaders: isHeader,
-      autoSize: false
-    });
-    doc.save("".concat(filename, ".").concat(type));
+  }
 
-    if (message !== false) {
-      _vxetable.modal.message({
-        message: _vxetable.t('vxe.table.expSuccess'),
-        status: 'success'
-      });
+  function checkFont() {
+    var fontName = globalOptions.fontName,
+        fontUrl = globalOptions.fontUrl;
+
+    if (fontName && fontUrl) {
+      if (!globalFonts[fontName]) {
+        globalFonts[fontName] = new Promise(function (resolve, reject) {
+          var fontScript = document.createElement('script');
+          fontScript.src = fontUrl;
+          fontScript.type = 'text/javascript';
+          fontScript.onload = resolve;
+          fontScript.onerror = reject;
+          document.body.appendChild(fontScript);
+        });
+        return globalFonts[fontName];
+      }
     }
+
+    return new Promise(function (resolve) {
+      return setTimeout(resolve, 1000);
+    });
   }
 
   function handleExportEvent(params) {
@@ -117,13 +173,30 @@
       return false;
     }
   }
+
+  function setup(options) {
+    var _Object$assign = Object.assign(globalOptions, options),
+        fontName = _Object$assign.fontName,
+        fontUrl = _Object$assign.fontUrl;
+
+    if (fontName) {
+      if (!fontUrl) {
+        throw new Error('The fontUrl cannot be empty.');
+      }
+
+      if (isWin && !window.jsPDF) {
+        window.jsPDF = _jspdf["default"];
+      }
+    }
+  }
   /**
    * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
    */
 
 
   var VXETablePluginExportPDF = {
-    install: function install(xtable) {
+    setup: setup,
+    install: function install(xtable, options) {
       var interceptor = xtable.interceptor;
       _vxetable = xtable;
       Object.assign(xtable.types, {
@@ -132,11 +205,15 @@
       interceptor.mixin({
         'event.export': handleExportEvent
       });
+
+      if (options) {
+        setup(options);
+      }
     }
   };
   _exports.VXETablePluginExportPDF = VXETablePluginExportPDF;
 
-  if (typeof window !== 'undefined' && window.VXETable) {
+  if (isWin && window.VXETable) {
     window.VXETable.use(VXETablePluginExportPDF);
   }
 
