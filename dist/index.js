@@ -102,17 +102,19 @@
       var doc = new _jspdf["default"]({
         putOnlyUsedFonts: true,
         orientation: 'landscape'
-      });
+      }); // 设置字体
 
       if (fontName && fontUrl) {
         doc.addFont(fontName + '.ttf', fontName, 'normal');
         doc.setFont(fontName, 'normal');
-      }
+      } // 转换数据
+
 
       doc.table(1, 1, rowList.concat(footList), headers, {
         printHeaders: isHeader,
         autoSize: false
-      });
+      }); // 导出 pdf
+
       doc.save("".concat(filename, ".").concat(type));
 
       if (showMsg) {
@@ -132,12 +134,11 @@
         status: 'loading',
         duration: -1
       });
-    } // 转换pdf
-
+    }
 
     checkFont().then(function () {
       if (showMsg) {
-        setTimeout(exportMethod, 1000);
+        setTimeout(exportMethod, 1500);
       } else {
         exportMethod();
       }
@@ -162,9 +163,7 @@
       }
     }
 
-    return new Promise(function (resolve) {
-      return setTimeout(resolve, 1000);
-    });
+    return Promise.resolve();
   }
 
   function handleExportEvent(params) {

@@ -69,11 +69,14 @@ function exportPDF (params: InterceptorExportParams) {
   const exportMethod = () => {
     /* eslint-disable new-cap */
     const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
+    // 设置字体
     if (fontName && fontUrl) {
       doc.addFont(fontName + '.ttf', fontName, 'normal')
       doc.setFont(fontName, 'normal')
     }
+    // 转换数据
     doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false })
+    // 导出 pdf
     doc.save(`${filename}.${type}`)
     if (showMsg) {
       _vxetable.modal.close(msgKey)
@@ -83,10 +86,9 @@ function exportPDF (params: InterceptorExportParams) {
   if (showMsg) {
     _vxetable.modal.message({ id: msgKey, message: _vxetable.t('vxe.table.expLoading'), status: 'loading', duration: -1 })
   }
-  // 转换pdf
   checkFont().then(() => {
     if (showMsg) {
-      setTimeout(exportMethod, 1000)
+      setTimeout(exportMethod, 1500)
     } else {
       exportMethod()
     }
@@ -108,7 +110,7 @@ function checkFont () {
       return globalFonts[fontName]
     }
   }
-  return new Promise(resolve => setTimeout(resolve, 1000))
+  return Promise.resolve()
 }
 
 function handleExportEvent (params: InterceptorExportParams) {
