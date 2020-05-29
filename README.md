@@ -22,7 +22,20 @@ import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
 VXETable.use(VXETablePluginExportPDF)
 ```
 
+## Options
+
+| 参数 | 描述 | 默认值 |
+|------|------|------|
+| fontName | 字体名称 |  |
+| fontStyle | 字体的样式 | normal |
+| fontUrl | 字体库下载路径 |  |
+| beforeMethod | Function({ $pdf, options, columns, datas }) 导出之前触发回调，可以自行设置字体等相关样式 |  |
+
 ## Font
+
+| 字体名称 | 描述 |
+|------|------|
+| SourceHanSans-Bold | 思源雅黑-粗体 |
 
 ```javascript
 // ...

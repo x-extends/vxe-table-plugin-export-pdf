@@ -23,7 +23,7 @@ function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], col
 function exportPDF (params: InterceptorExportParams) {
   let colWidth = 0
   const msgKey = 'pdf'
-  const { fontName, fontUrl } = globalOptions
+  const { fontName, fontStyle = 'normal', beforeMethod } = globalOptions
   const { options, columns, datas } = params
   const showMsg = options.message !== false
   const $table: any = params.$table
@@ -70,9 +70,13 @@ function exportPDF (params: InterceptorExportParams) {
     /* eslint-disable new-cap */
     const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
     // 设置字体
-    if (fontName && fontUrl) {
-      doc.addFont(fontName + '.ttf', fontName, 'normal')
-      doc.setFont(fontName, 'normal')
+    if (fontName && globalFonts[fontName]) {
+      doc.addFont(fontName + '.ttf', fontName, fontStyle)
+      doc.setFont(fontName, fontStyle)
+    }
+    // 导出之前
+    if (beforeMethod && beforeMethod({ $pdf: doc, $table, options, columns, datas }) === false) {
+      return
     }
     // 转换数据
     doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false })
@@ -122,7 +126,9 @@ function handleExportEvent (params: InterceptorExportParams) {
 
 interface VXETablePluginExportPDFOptions {
   fontName?: 'SourceHanSans-Bold';
+  fontStyle?: 'normal';
   fontUrl?: string;
+  beforeMethod?: Function;
 }
 
 function setup (options: VXETablePluginExportPDFOptions) {

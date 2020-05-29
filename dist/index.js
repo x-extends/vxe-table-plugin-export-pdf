@@ -41,7 +41,9 @@
     var colWidth = 0;
     var msgKey = 'pdf';
     var fontName = globalOptions.fontName,
-        fontUrl = globalOptions.fontUrl;
+        _globalOptions$fontSt = globalOptions.fontStyle,
+        fontStyle = _globalOptions$fontSt === void 0 ? 'normal' : _globalOptions$fontSt,
+        beforeMethod = globalOptions.beforeMethod;
     var options = params.options,
         columns = params.columns,
         datas = params.datas;
@@ -104,9 +106,20 @@
         orientation: 'landscape'
       }); // 设置字体
 
-      if (fontName && fontUrl) {
-        doc.addFont(fontName + '.ttf', fontName, 'normal');
-        doc.setFont(fontName, 'normal');
+      if (fontName && globalFonts[fontName]) {
+        doc.addFont(fontName + '.ttf', fontName, fontStyle);
+        doc.setFont(fontName, fontStyle);
+      } // 导出之前
+
+
+      if (beforeMethod && beforeMethod({
+        $pdf: doc,
+        $table: $table,
+        options: options,
+        columns: columns,
+        datas: datas
+      }) === false) {
+        return;
       } // 转换数据
 
 
