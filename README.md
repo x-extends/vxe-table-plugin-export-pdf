@@ -43,8 +43,10 @@ import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
 // ...
 
 VXETablePluginExportPDF.setup({
-  fontName: 'SourceHanSans-Bold', // 指定字体
-  fontUrl: 'https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-bold.js' // 字体库下载路径，可以将包下载放到自己服务器中
+  // 指定字体
+  fontName: 'SourceHanSans-Bold',
+  // 字体库下载路径，可以将包下载放到自己服务器中
+  fontUrl: 'https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-bold.js'
 })
 ```
 
