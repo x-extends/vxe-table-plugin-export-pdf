@@ -40,9 +40,7 @@
   function exportPDF(params) {
     var colWidth = 0;
     var msgKey = 'pdf';
-    var fontName = globalOptions.fontName,
-        _globalOptions$fontSt = globalOptions.fontStyle,
-        fontStyle = _globalOptions$fontSt === void 0 ? 'normal' : _globalOptions$fontSt,
+    var fonts = globalOptions.fonts,
         beforeMethod = globalOptions.beforeMethod;
     var options = params.options,
         columns = params.columns,
@@ -99,6 +97,15 @@
       });
     }
 
+    var fontConf;
+    var fontName = options.fontName || globalOptions.fontName;
+
+    if (fonts && fontName) {
+      fontConf = fonts.find(function (item) {
+        return item.fontName === fontName;
+      });
+    }
+
     var exportMethod = function exportMethod() {
       /* eslint-disable new-cap */
       var doc = new _jspdf["default"]({
@@ -106,9 +113,16 @@
         orientation: 'landscape'
       }); // 设置字体
 
-      if (fontName && globalFonts[fontName]) {
-        doc.addFont(fontName + '.ttf', fontName, fontStyle);
-        doc.setFont(fontName, fontStyle);
+      if (fontConf) {
+        var _fontConf = fontConf,
+            _fontName = _fontConf.fontName,
+            _fontConf$fontStyle = _fontConf.fontStyle,
+            fontStyle = _fontConf$fontStyle === void 0 ? 'normal' : _fontConf$fontStyle;
+
+        if (globalFonts[_fontName]) {
+          doc.addFont(_fontName + '.ttf', _fontName, fontStyle);
+          doc.setFont(_fontName, fontStyle);
+        }
       } // 导出之前
 
 
@@ -149,7 +163,7 @@
       });
     }
 
-    checkFont().then(function () {
+    checkFont(fontConf).then(function () {
       if (showMsg) {
         setTimeout(exportMethod, 1500);
       } else {
@@ -158,12 +172,12 @@
     });
   }
 
-  function checkFont() {
-    var fontName = globalOptions.fontName,
-        fontUrl = globalOptions.fontUrl;
+  function checkFont(fontConf) {
+    if (fontConf) {
+      var fontName = fontConf.fontName,
+          fontUrl = fontConf.fontUrl;
 
-    if (fontName && fontUrl) {
-      if (!globalFonts[fontName]) {
+      if (fontUrl && !globalFonts[fontName]) {
         globalFonts[fontName] = new Promise(function (resolve, reject) {
           var fontScript = document.createElement('script');
           fontScript.src = fontUrl;
@@ -188,14 +202,9 @@
 
   function setup(options) {
     var _Object$assign = Object.assign(globalOptions, options),
-        fontName = _Object$assign.fontName,
-        fontUrl = _Object$assign.fontUrl;
+        fonts = _Object$assign.fonts;
 
-    if (fontName) {
-      if (!fontUrl) {
-        throw new Error('The fontUrl cannot be empty.');
-      }
-
+    if (fonts) {
       if (isWin && !window.jsPDF) {
         window.jsPDF = _jspdf["default"];
       }

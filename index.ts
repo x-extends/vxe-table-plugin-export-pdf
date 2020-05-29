@@ -23,7 +23,7 @@ function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], col
 function exportPDF (params: InterceptorExportParams) {
   let colWidth = 0
   const msgKey = 'pdf'
-  const { fontName, fontStyle = 'normal', beforeMethod } = globalOptions
+  const { fonts, beforeMethod } = globalOptions
   const { options, columns, datas } = params
   const showMsg = options.message !== false
   const $table: any = params.$table
@@ -66,13 +66,21 @@ function exportPDF (params: InterceptorExportParams) {
       footList.push(item)
     })
   }
+  let fontConf: VXETablePluginExportPDFFonts | null | undefined
+  const fontName = options.fontName || globalOptions.fontName
+  if (fonts && fontName) {
+    fontConf = fonts.find(item => item.fontName === fontName)
+  }
   const exportMethod = () => {
     /* eslint-disable new-cap */
     const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
     // 设置字体
-    if (fontName && globalFonts[fontName]) {
-      doc.addFont(fontName + '.ttf', fontName, fontStyle)
-      doc.setFont(fontName, fontStyle)
+    if (fontConf) {
+      const { fontName, fontStyle = 'normal' } = fontConf
+      if (globalFonts[fontName]) {
+        doc.addFont(fontName + '.ttf', fontName, fontStyle)
+        doc.setFont(fontName, fontStyle)
+      }
     }
     // 导出之前
     if (beforeMethod && beforeMethod({ $pdf: doc, $table, options, columns, datas }) === false) {
@@ -90,7 +98,7 @@ function exportPDF (params: InterceptorExportParams) {
   if (showMsg) {
     _vxetable.modal.message({ id: msgKey, message: _vxetable.t('vxe.table.expLoading'), status: 'loading', duration: -1 })
   }
-  checkFont().then(() => {
+  checkFont(fontConf).then(() => {
     if (showMsg) {
       setTimeout(exportMethod, 1500)
     } else {
@@ -99,10 +107,10 @@ function exportPDF (params: InterceptorExportParams) {
   })
 }
 
-function checkFont () {
-  const { fontName, fontUrl } = globalOptions
-  if (fontName && fontUrl) {
-    if (!globalFonts[fontName]) {
+function checkFont (fontConf?: VXETablePluginExportPDFFonts | null | undefined) {
+  if (fontConf) {
+    const { fontName, fontUrl } = fontConf
+    if (fontUrl && !globalFonts[fontName]) {
       globalFonts[fontName] = new Promise((resolve, reject) => {
         const fontScript = document.createElement('script')
         fontScript.src = fontUrl
@@ -124,19 +132,21 @@ function handleExportEvent (params: InterceptorExportParams) {
   }
 }
 
-interface VXETablePluginExportPDFOptions {
-  fontName?: 'SourceHanSans-Bold';
+interface VXETablePluginExportPDFFonts {
+  fontName: string;
   fontStyle?: 'normal';
-  fontUrl?: string;
+  fontUrl: string;
+}
+
+interface VXETablePluginExportPDFOptions {
+  fontName?: string;
+  fonts?: VXETablePluginExportPDFFonts[];
   beforeMethod?: Function;
 }
 
 function setup (options: VXETablePluginExportPDFOptions) {
-  const { fontName, fontUrl } = Object.assign(globalOptions, options)
-  if (fontName) {
-    if (!fontUrl) {
-      throw new Error('The fontUrl cannot be empty.')
-    }
+  const { fonts } = Object.assign(globalOptions, options)
+  if (fonts) {
     if (isWin && !window.jsPDF) {
       window.jsPDF = jsPDF
     }

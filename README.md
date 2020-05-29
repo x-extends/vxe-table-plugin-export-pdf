@@ -24,18 +24,23 @@ VXETable.use(VXETablePluginExportPDF)
 
 ## Options
 
-| 参数 | 描述 | 默认值 |
-|------|------|------|
-| fontName | 字体名称 |  |
-| fontStyle | 字体的样式 | normal |
-| fontUrl | 字体库下载路径 |  |
-| beforeMethod | Function({ $pdf, options, columns, datas }) 导出之前触发回调，可以自行设置字体等相关样式 |  |
+| 属性 | 类型 | 描述 | 默认值 |
+|------|------|------|------|
+| fontName | String | 设置默认的字体 |  |
+| fonts | Array<{fontName, fontUrl}> | 字体映射配置 |  |
+| beforeMethod | Function({ $pdf, options, columns, datas }) | 导出之前触发回调，可以自行设置字体等相关样式 |  |
 
 ## Font
 
-| 字体名称 | 描述 |
+| 字体名称 | 文件名 |
 |------|------|
-| SourceHanSans-Bold | 思源雅黑-粗体 |
+| SourceHanSans-ExtraLight | [source-han-sans-extralight.js](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/tree/master/fonts) |
+| SourceHanSans-Light | [source-han-sans-light.js](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/tree/master/fonts) |
+| SourceHanSans-Normal | [source-han-sans-normal.js](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/tree/master/fonts) |
+| SourceHanSans-Regular | [source-han-sans-regular.js](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/tree/master/fonts) |
+| SourceHanSans-Medium | [source-han-sans-medium.js](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/tree/master/fonts) |
+| SourceHanSans-Bold | [source-han-sans-bold.js](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/tree/master/fonts) |
+| SourceHanSans-Heavy | [source-han-sans-heavy.js](https://github.com/xuliangzhan/vxe-table-plugin-export-pdf/tree/master/fonts) |
 
 ```javascript
 // ...
@@ -43,10 +48,17 @@ import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
 // ...
 
 VXETablePluginExportPDF.setup({
-  // 指定字体
-  fontName: 'SourceHanSans-Bold',
-  // 字体库下载路径，可以将包下载放到自己服务器中
-  fontUrl: 'https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-bold.js'
+  // Set default font
+  fontName: 'SourceHanSans-Normal',
+  // Font maps
+  fonts: [
+    {
+      // Font name
+      fontName: 'SourceHanSans-Normal',
+      // Font library url
+      fontUrl: 'https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-normal.js'
+    }
+  ]
 })
 ```
 
@@ -89,7 +101,8 @@ export default {
     exportEvent() {
       this.$refs.xTable.exportData({
         filename: 'MyExport',
-        type: 'pdf'
+        type: 'pdf',
+        fontName: 'SourceHanSans-Normal' // Set font
       })
     }
   }
