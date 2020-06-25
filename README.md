@@ -72,7 +72,6 @@ VXETablePluginExportPDF.setup({
 </vxe-toolbar>
 
 <vxe-table
-  border
   ref="xTable"
   height="600"
   :data="tableData">
