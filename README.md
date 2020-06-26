@@ -1,7 +1,7 @@
 # vxe-table-plugin-export-pdf
 
 [![gitee star](https://gitee.com/xuliangzhan_admin/vxe-table-plugin-export-pdf/badge/star.svg?theme=dark)](https://gitee.com/xuliangzhan_admin/vxe-table-plugin-export-pdf/stargazers)
-[![npm version](https://img.shields.io/npm/v/vxe-table-plugin-export-pdf.svg?style=flat-square)](https://www.npmjs.org/package/vxe-table-plugin-export-pdf)
+[![npm version](https://img.shields.io/npm/v/vxe-table-plugin-export-pdf.svg?style=flat-square)](https://www.npmjs.com/package/vxe-table-plugin-export-pdf)
 [![npm downloads](https://img.shields.io/npm/dm/vxe-table-plugin-export-pdf.svg?style=flat-square)](http://npm-stat.com/charts.html?package=vxe-table-plugin-export-pdf)
 [![gzip size: JS](http://img.badgesize.io/https://unpkg.com/vxe-table-plugin-export-pdf/dist/index.min.js?compression=gzip&label=gzip%20size:%20JS)](https://unpkg.com/vxe-table-plugin-export-pdf/dist/index.min.js)
 [![npm license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
