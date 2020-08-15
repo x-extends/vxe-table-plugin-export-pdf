@@ -57,7 +57,7 @@ gulp.task('build_umd', function () {
         }]
       ]
     }))
-    .pipe(replace(`global.jspdf`, `global.jsPDF ? { default: global.jsPDF } : global.jspdf`))
+    .pipe(replace(`global.jspdf`, `global.jsPDF || global.jspdf`))
     .pipe(replace(`global.${exportModuleName} = mod.exports;`, `global.${exportModuleName} = mod.exports.default;`))
     .pipe(gulp.dest('dist'))
     .pipe(uglify())
