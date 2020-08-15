@@ -9,6 +9,7 @@ declare module 'jspdf' {
         setHeight(size: number) :any;
       }
     };
+    API: any;
     getTextWidth(text: string) :number;
     setFontSize(size: number): any;
     addFont(postScriptName: string, id: string, fontStyle: string, encoding?: any): any;
@@ -16,6 +17,7 @@ declare module 'jspdf' {
     table(x: number, y: number, row: any[], headers: any[], options?: any): any;
     text(text: string | string[], x: number, y: number, optionsopt?: any, transform?: any): any;
     save(filename: string): any;
+    [key: string]: any;
   }
   export default jsPDF
 }

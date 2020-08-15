@@ -7,7 +7,7 @@ import {
   ColumnConfig,
   ExportOptons
 } from 'vxe-table/lib/vxe-table'
-import jspdf from 'jspdf'
+import jsPDF from 'jspdf'
 /* eslint-enable no-unused-vars */
 
 const isWin = typeof window !== 'undefined'
@@ -77,7 +77,7 @@ function exportPDF (params: InterceptorExportParams) {
   }
   const exportMethod = () => {
     /* eslint-disable new-cap */
-    const doc = new jspdf({ putOnlyUsedFonts: true, orientation: 'landscape' })
+    const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
     // 设置字体
     doc.setFontSize(10)
     doc.internal.pageSize.setWidth(pdfWidth)
@@ -161,8 +161,10 @@ interface VXETablePluginExportPDFOptions {
 function setup (options: VXETablePluginExportPDFOptions) {
   const { fonts } = Object.assign(globalOptions, options)
   if (fonts) {
-    if (isWin && !(window.jspdf || window.jsPDF)) {
-      window.jspdf = jspdf
+    if (isWin) {
+      if (!window.jsPDF) {
+        window.jsPDF = window.jspdf ? window.jspdf.jsPDF : jsPDF
+      }
     }
   }
 }

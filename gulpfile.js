@@ -51,7 +51,7 @@ gulp.task('build_umd', function () {
           globals: {
             [pack.name]: exportModuleName,
             'xe-utils': 'XEUtils',
-            'jspdf': 'jsPDF'
+            'jspdf': 'jspdf'
           },
           exactGlobals: true
         }]

@@ -32,6 +32,8 @@ VXETable.use(VXETablePluginExportPDF)
 
 ## Font
 
+这里使用开源的 [思源黑体](https://github.com/be5invis/source-han-sans-ttf/releases)  
+
 | 字体名称 | 文件名 |
 |------|------|
 | SourceHanSans-ExtraLight | [source-han-sans-extralight.js](https://github.com/x-extends/vxe-table-plugin-export-pdf/tree/master/fonts) |
