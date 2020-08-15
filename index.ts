@@ -162,7 +162,11 @@ function setup (options: VXETablePluginExportPDFOptions) {
   const { fonts } = Object.assign(globalOptions, options)
   if (fonts) {
     if (isWin) {
-      if (!window.jsPDF) {
+      if (window.jsPDF) {
+        if (!window.jsPDF.default) {
+          window.jsPDF.default = window.jsPDF
+        }
+      } else {
         window.jsPDF = window.jspdf ? window.jspdf.jsPDF : jsPDF
       }
     }
