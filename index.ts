@@ -15,12 +15,20 @@ const globalOptions: VXETablePluginExportPDFOptions = {}
 const globalFonts: { [key: string]: any } = {}
 let _vxetable: typeof VXETable
 
+function getCellText (cellValue: any) {
+  return cellValue || ' '
+}
+
 function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], column: ColumnConfig) {
   const cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
-  return cellValue
+  return getCellText(cellValue)
 }
 
 function exportPDF (params: InterceptorExportParams) {
+  const dX = 7
+  const dY = 15.8
+  const ratio = 3.78
+  const pdfWidth = 210
   let colWidth = 0
   const msgKey = 'pdf'
   const { fonts, beforeMethod } = globalOptions
@@ -31,30 +39,26 @@ function exportPDF (params: InterceptorExportParams) {
   const { type, filename, isHeader, isFooter, original, footerFilterMethod } = options
   const footList: { [key: string]: any }[] = []
   const headers: { [key: string]: any }[] = columns.map((column) => {
-    const title = XEUtils.toString(original ? column.property : column.getTitle()) || ' '
-    colWidth += column.renderWidth
+    const title = XEUtils.toString(original ? column.property : column.getTitle())
+    const width = column.renderWidth / ratio
+    colWidth += width
     return {
       name: column.id,
-      prompt: title,
-      width: column.renderWidth
+      prompt: getCellText(title),
+      width
     }
   })
-  let rowList: { [key: string]: any }[] = []
-  const colRatio = colWidth / 100
+  let offsetWidth = (colWidth - Math.floor(pdfWidth + dX * 2 * ratio)) / headers.length
   headers.forEach((column) => {
-    column.width = Math.floor(column.width / colRatio * 4) - 1
+    column.width = column.width - offsetWidth
   })
-  if (treeConfig) {
-    rowList = datas.map((row) => {
-      const item: { [key: string]: any } = {}
-      columns.forEach((column) => {
-        item[column.id] = column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id]
-      })
-      return item
+  let rowList: { [key: string]: any }[] = datas.map((row) => {
+    const item: { [key: string]: any } = {}
+    columns.forEach((column) => {
+      item[column.id] = getCellText(treeConfig && column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id])
     })
-  } else {
-    rowList = datas
-  }
+    return item
+  })
   if (isFooter) {
     const { footerData } = $table.getTableData()
     const footers = footerFilterMethod ? footerData.filter(footerFilterMethod) : footerData
@@ -75,6 +79,8 @@ function exportPDF (params: InterceptorExportParams) {
     /* eslint-disable new-cap */
     const doc = new jsPDF({ putOnlyUsedFonts: true, orientation: 'landscape' })
     // 设置字体
+    doc.setFontSize(10)
+    doc.internal.pageSize.setWidth(pdfWidth)
     if (fontConf) {
       const { fontName, fontStyle = 'normal' } = fontConf
       if (globalFonts[fontName]) {
@@ -82,12 +88,20 @@ function exportPDF (params: InterceptorExportParams) {
         doc.setFont(fontName, fontStyle)
       }
     }
-    // 导出之前
     if (beforeMethod && beforeMethod({ $pdf: doc, $table, options, columns, datas }) === false) {
       return
     }
+    if (options.sheetName) {
+      const title = XEUtils.toString(options.sheetName)
+      const textWidth = doc.getTextWidth(title)
+      doc.text(XEUtils.toString(title), (pdfWidth - textWidth) / 2, dY / 2 + 2)
+    }
     // 转换数据
-    doc.table(1, 1, rowList.concat(footList), headers, { printHeaders: isHeader, autoSize: false })
+    doc.table(dX, dY, rowList.concat(footList), headers, {
+      printHeaders: isHeader,
+      autoSize: false,
+      fontSize: 6
+    })
     // 导出 pdf
     doc.save(`${filename}.${type}`)
     if (showMsg) {
