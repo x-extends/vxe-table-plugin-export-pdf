@@ -192,9 +192,17 @@ declare module 'vxe-table/lib/vxe-table' {
 export const VXETablePluginExportPDF = {
   setup,
   install (vxetable: typeof VXETable, options?: VXETablePluginExportPDFOptions) {
-    const { interceptor } = vxetable
-    vxetable.types.pdf = 0
-    interceptor.mixin({
+    if (vxetable.types) {
+      vxetable.types.pdf = 0
+    }
+    vxetable.setup({
+      export: {
+        types: {
+          pdf: 1
+        }
+      }
+    })
+    vxetable.interceptor.mixin({
       'event.export': handleExportEvent
     })
     if (options) {
