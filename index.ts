@@ -180,21 +180,12 @@ function setup (options: VXETablePluginExportPDFOptions) {
   }
 }
 
-declare module 'vxe-table/lib/vxe-table' {
-  interface VXETableTypes {
-    pdf: number;
-  }
-}
-
 /**
  * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF = {
   setup,
   install (vxetable: typeof VXETable, options?: VXETablePluginExportPDFOptions) {
-    if (vxetable.types) {
-      vxetable.types.pdf = 0
-    }
     vxetable.setup({
       export: {
         types: {
