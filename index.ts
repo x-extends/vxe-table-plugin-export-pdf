@@ -1,14 +1,42 @@
 /* eslint-disable no-unused-vars */
 import XEUtils from 'xe-utils/ctor'
 import {
-  VXETable,
-  Table,
-  InterceptorExportParams,
-  ColumnConfig,
-  ExportOptons
+  VXETableByVueProperty,
+  VXETableInstance,
+  VxeTableConstructor,
+  VxeTablePropTypes,
+  VxeTableDefines,
+  VxeGlobalInterceptorHandles
 } from 'vxe-table/lib/vxe-table'
 import jsPDF from 'jspdf'
+
+declare module 'vxe-table/lib/vxe-table' {
+  namespace VxeTablePropTypes {
+    interface ExportConfig {
+      fontName?: string;
+    }
+  }
+}
+
+declare global {
+  interface Window {
+    jspdf: any;
+    jsPDF: any;
+  }
+}
 /* eslint-enable no-unused-vars */
+
+interface VXETablePluginExportPDFFonts {
+  fontName: string;
+  fontStyle?: 'normal';
+  fontUrl: string;
+}
+
+interface VXETablePluginExportPDFOptions {
+  fontName?: string;
+  fonts?: VXETablePluginExportPDFFonts[];
+  beforeMethod?: Function;
+}
 
 const isWin = typeof window !== 'undefined'
 const globalOptions: VXETablePluginExportPDFOptions = {}
@@ -18,21 +46,24 @@ function getCellText (cellValue: any) {
   return cellValue || ' '
 }
 
-function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], column: ColumnConfig) {
-  const cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
+function getFooterCellValue ($table: VxeTableConstructor, opts: VxeTablePropTypes.ExportConfig, rows: any[], column: VxeTableDefines.ColumnInfo) {
+  const cellValue = XEUtils.toString(rows[$table.getVTColumnIndex(column)])
   return getCellText(cellValue)
 }
 
-function getFooterData (opts: ExportOptons, footerData: any[][]) {
+function getFooterData (opts: VxeTablePropTypes.ExportConfig, footerData: any[][]) {
   const { footerFilterMethod } = opts
   return footerFilterMethod ? footerData.filter((items, index) => footerFilterMethod({ items, $rowIndex: index })) : footerData
 }
 
-function exportPDF (params: InterceptorExportParams) {
+function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams) {
   const { fonts, beforeMethod } = globalOptions
   const { $table, options, columns, datas } = params
-  const { $vxe, treeConfig, treeOpts } = $table
-  const { modal, t } = $vxe
+  const { props, instance, computeMaps } = $table
+  const { treeConfig } = props
+  const { computeTreeOpts } = computeMaps
+  const treeOpts = computeTreeOpts.value
+  const { modal, t } = instance.appContext.config.globalProperties.$vxe as VXETableByVueProperty
   const dX = 7
   const dY = 15.8
   const ratio = 3.78
@@ -52,12 +83,12 @@ function exportPDF (params: InterceptorExportParams) {
       width
     }
   })
-  let offsetWidth = (colWidth - Math.floor(pdfWidth + dX * 2 * ratio)) / headers.length
+  const offsetWidth = (colWidth - Math.floor(pdfWidth + dX * 2 * ratio)) / headers.length
   headers.forEach((column) => {
     column.width = column.width - offsetWidth
   })
-  let rowList: { [key: string]: any }[] = datas.map((row) => {
-    const item: { [key: string]: any } = {}
+  const rowList: any[] = datas.map((row) => {
+    const item: any = {}
     columns.forEach((column) => {
       item[column.id] = getCellText(treeConfig && column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id])
     })
@@ -67,7 +98,7 @@ function exportPDF (params: InterceptorExportParams) {
     const { footerData } = $table.getTableData()
     const footers = getFooterData(options, footerData)
     footers.forEach(rows => {
-      const item: { [key: string]: any } = {}
+      const item: any = {}
       columns.forEach((column) => {
         item[column.id] = getFooterCellValue($table, options, rows, column)
       })
@@ -143,29 +174,10 @@ function checkFont (fontConf?: VXETablePluginExportPDFFonts | null | undefined) 
   return Promise.resolve()
 }
 
-function handleExportEvent (params: InterceptorExportParams) {
+function handleExportEvent (params: VxeGlobalInterceptorHandles.InterceptorExportParams) {
   if (params.options.type === 'pdf') {
     exportPDF(params)
     return false
-  }
-}
-
-interface VXETablePluginExportPDFFonts {
-  fontName: string;
-  fontStyle?: 'normal';
-  fontUrl: string;
-}
-
-interface VXETablePluginExportPDFOptions {
-  fontName?: string;
-  fonts?: VXETablePluginExportPDFFonts[];
-  beforeMethod?: Function;
-}
-
-declare global {
-  interface Window {
-    jspdf: any;
-    jsPDF: any;
   }
 }
 
@@ -185,7 +197,7 @@ function setup (options: VXETablePluginExportPDFOptions) {
  */
 export const VXETablePluginExportPDF = {
   setup,
-  install (vxetable: typeof VXETable, options?: VXETablePluginExportPDFOptions) {
+  install (vxetable: VXETableInstance, options?: VXETablePluginExportPDFOptions) {
     vxetable.setup({
       export: {
         types: {
@@ -202,7 +214,7 @@ export const VXETablePluginExportPDF = {
   }
 }
 
-if (isWin && window.VXETable) {
+if (typeof window !== 'undefined' && window.VXETable) {
   window.VXETable.use(VXETablePluginExportPDF)
 }
 
