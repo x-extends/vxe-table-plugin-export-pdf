@@ -5,7 +5,7 @@ import {
   Table,
   InterceptorExportParams,
   ColumnConfig,
-  ExportOptons
+  TableExportConfig
 } from 'vxe-table/lib/vxe-table'
 import jsPDF from 'jspdf'
 /* eslint-enable no-unused-vars */
@@ -18,12 +18,12 @@ function getCellText (cellValue: any) {
   return cellValue || ' '
 }
 
-function getFooterCellValue ($table: Table, opts: ExportOptons, rows: any[], column: ColumnConfig) {
+function getFooterCellValue ($table: Table, opts: TableExportConfig, rows: any[], column: ColumnConfig) {
   const cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
   return getCellText(cellValue)
 }
 
-function getFooterData (opts: ExportOptons, footerData: any[][]) {
+function getFooterData (opts: TableExportConfig, footerData: any[][]) {
   const { footerFilterMethod } = opts
   return footerFilterMethod ? footerData.filter((items, index) => footerFilterMethod({ items, $rowIndex: index })) : footerData
 }
