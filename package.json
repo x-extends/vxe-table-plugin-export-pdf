@@ -51,12 +51,11 @@
     "prettier": "^2.1.2",
     "typescript": "^4.0.5",
     "vue": "^3.0.2",
-    "vxe-table": "^4.0.0-alpha.2",
+    "vxe-table": "^4.0.0-beta.0",
     "xe-utils": "^3.0.1"
   },
   "peerDependencies": {
-    "vxe-table": ">= 4",
-    "jspdf": ">= 2.1.0"
+    "vxe-table": ">= 4"
   },
   "repository": {
     "type": "git",
