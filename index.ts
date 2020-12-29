@@ -59,9 +59,9 @@ function getFooterData (opts: VxeTablePropTypes.ExportConfig, footerData: any[][
 function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams) {
   const { fonts, beforeMethod } = globalOptions
   const { $table, options, columns, datas } = params
-  const { props, instance, computeMaps } = $table
+  const { props, instance } = $table
   const { treeConfig } = props
-  const { computeTreeOpts } = computeMaps
+  const { computeTreeOpts } = $table.getComputeMaps()
   const treeOpts = computeTreeOpts.value
   const { modal, t } = instance.appContext.config.globalProperties.$vxe as VXETableByVueProperty
   const dX = 7
