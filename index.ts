@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import XEUtils from 'xe-utils/ctor'
 import {
   VXETableByVueProperty,
@@ -24,7 +23,6 @@ declare global {
     jsPDF: any;
   }
 }
-/* eslint-enable no-unused-vars */
 
 interface VXETablePluginExportPDFFonts {
   fontName: string;
