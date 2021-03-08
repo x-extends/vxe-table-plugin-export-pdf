@@ -1,7 +1,6 @@
 import XEUtils from 'xe-utils/ctor'
 import {
-  VXETableByVueProperty,
-  VXETableInstance,
+  VXETableCore,
   VxeTableConstructor,
   VxeTablePropTypes,
   VxeTableDefines,
@@ -9,18 +8,13 @@ import {
 } from 'vxe-table/lib/vxe-table'
 import jsPDF from 'jspdf'
 
+let vxetable: VXETableCore
+
 declare module 'vxe-table/lib/vxe-table' {
   namespace VxeTablePropTypes {
     interface ExportConfig {
       fontName?: string;
     }
-  }
-}
-
-declare global {
-  interface Window {
-    jspdf: any;
-    jsPDF: any;
   }
 }
 
@@ -36,7 +30,6 @@ interface VXETablePluginExportPDFOptions {
   beforeMethod?: Function;
 }
 
-const isWin = typeof window !== 'undefined'
 const globalOptions: VXETablePluginExportPDFOptions = {}
 const globalFonts: { [key: string]: any } = {}
 
@@ -45,7 +38,7 @@ function getCellText (cellValue: any) {
 }
 
 function getFooterCellValue ($table: VxeTableConstructor, opts: VxeTablePropTypes.ExportConfig, rows: any[], column: VxeTableDefines.ColumnInfo) {
-  const cellValue = XEUtils.toString(rows[$table.getVTColumnIndex(column)])
+  const cellValue = XEUtils.toValueString(rows[$table.getVTColumnIndex(column)])
   return getCellText(cellValue)
 }
 
@@ -57,11 +50,10 @@ function getFooterData (opts: VxeTablePropTypes.ExportConfig, footerData: any[][
 function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams) {
   const { fonts, beforeMethod } = globalOptions
   const { $table, options, columns, datas } = params
-  const { props, instance } = $table
+  const { props } = $table
   const { treeConfig } = props
   const { computeTreeOpts } = $table.getComputeMaps()
   const treeOpts = computeTreeOpts.value
-  const { modal, t } = instance.appContext.config.globalProperties.$vxe as VXETableByVueProperty
   const dX = 7
   const dY = 15.8
   const ratio = 3.78
@@ -72,7 +64,7 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
   const { type, filename, isHeader, isFooter, original } = options
   const footList: { [key: string]: any }[] = []
   const headers: any[] = columns.map((column) => {
-    const title = XEUtils.toString(original ? column.property : column.getTitle())
+    const title = XEUtils.toValueString(original ? column.property : column.getTitle())
     const width = column.renderWidth / ratio
     colWidth += width
     return {
@@ -125,9 +117,9 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
       return
     }
     if (options.sheetName) {
-      const title = XEUtils.toString(options.sheetName)
+      const title = XEUtils.toValueString(options.sheetName)
       const textWidth = doc.getTextWidth(title)
-      doc.text(XEUtils.toString(title), (pdfWidth - textWidth) / 2, dY / 2 + 2)
+      doc.text(title, (pdfWidth - textWidth) / 2, dY / 2 + 2)
     }
     // 转换数据
     doc.table(dX, dY, rowList.concat(footList), headers, {
@@ -138,12 +130,12 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
     // 导出 pdf
     doc.save(`${filename}.${type}`)
     if (showMsg) {
-      modal.close(msgKey)
-      modal.message({ message: t('vxe.table.expSuccess'), status: 'success' })
+      vxetable.modal.close(msgKey)
+      vxetable.modal.message({ message: vxetable.t('vxe.table.expSuccess'), status: 'success' })
     }
   }
   if (showMsg) {
-    modal.message({ id: msgKey, message: t('vxe.table.expLoading'), status: 'loading', duration: -1 })
+    vxetable.modal.message({ id: msgKey, message: vxetable.t('vxe.table.expLoading'), status: 'loading', duration: -1 })
   }
   checkFont(fontConf).then(() => {
     if (showMsg) {
@@ -179,35 +171,32 @@ function handleExportEvent (params: VxeGlobalInterceptorHandles.InterceptorExpor
   }
 }
 
-function setup (options: VXETablePluginExportPDFOptions) {
-  const { fonts } = Object.assign(globalOptions, options)
-  if (fonts) {
-    if (isWin) {
-      if (!window.jsPDF) {
-        window.jsPDF = window.jspdf ? window.jspdf.jsPDF : jsPDF
-      }
-    }
-  }
+function pluginSetup (options: VXETablePluginExportPDFOptions) {
+  Object.assign(globalOptions, options)
 }
 
 /**
  * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF = {
-  setup,
-  install (vxetable: VXETableInstance, options?: VXETablePluginExportPDFOptions) {
-    vxetable.setup({
+  setup: pluginSetup,
+  install (vxetablecore: VXETableCore, options?: VXETablePluginExportPDFOptions) {
+    const { setup, interceptor } = vxetablecore
+
+    vxetable = vxetablecore
+
+    setup({
       export: {
         types: {
           pdf: 1
         }
       }
     })
-    vxetable.interceptor.mixin({
+    interceptor.mixin({
       'event.export': handleExportEvent
     })
     if (options) {
-      setup(options)
+      pluginSetup(options)
     }
   }
 }
