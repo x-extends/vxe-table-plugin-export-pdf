@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import XEUtils from 'xe-utils/ctor'
+import XEUtils from 'xe-utils'
 import {
   VXETable,
   Table,
@@ -8,7 +7,6 @@ import {
   TableExportConfig
 } from 'vxe-table/lib/vxe-table'
 import jsPDF from 'jspdf'
-/* eslint-enable no-unused-vars */
 
 const isWin = typeof window !== 'undefined'
 const globalOptions: VXETablePluginExportPDFOptions = {}
