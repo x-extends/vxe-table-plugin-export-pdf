@@ -1,16 +1,10 @@
 import XEUtils from 'xe-utils'
-import {
-  VXETableCore,
-  VxeTableConstructor,
-  VxeTablePropTypes,
-  VxeTableDefines,
-  VxeGlobalInterceptorHandles
-} from 'vxe-table/lib/vxe-table'
+import { VXETableCore, VxeTableConstructor, VxeTablePropTypes, VxeTableDefines, VxeGlobalInterceptorHandles } from 'vxe-table'
 import jsPDF from 'jspdf'
 
 let vxetable: VXETableCore
 
-declare module 'vxe-table/lib/vxe-table' {
+declare module 'vxe-table' {
   namespace VxeTablePropTypes {
     interface ExportConfig {
       fontName?: string;
