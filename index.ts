@@ -200,7 +200,7 @@ export const VXETablePluginExportPDF = {
   }
 }
 
-if (isWin && window.VXETable) {
+if (isWin && window.VXETable && window.VXETable.use) {
   window.VXETable.use(VXETablePluginExportPDF)
 }
 
