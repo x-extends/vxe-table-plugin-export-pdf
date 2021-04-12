@@ -42,6 +42,7 @@ function getFooterData (opts: VxeTablePropTypes.ExportConfig, footerData: any[][
 }
 
 function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams) {
+  const { modal, t } = vxetable
   const { fonts, beforeMethod } = globalOptions
   const { $table, options, columns, datas } = params
   const { props } = $table
@@ -123,13 +124,13 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
     })
     // 导出 pdf
     doc.save(`${filename}.${type}`)
-    if (showMsg) {
-      vxetable.modal.close(msgKey)
-      vxetable.modal.message({ message: vxetable.t('vxe.table.expSuccess'), status: 'success' })
+    if (showMsg && modal) {
+      modal.close(msgKey)
+      modal.message({ content: t('vxe.table.expSuccess'), status: 'success' })
     }
   }
-  if (showMsg) {
-    vxetable.modal.message({ id: msgKey, message: vxetable.t('vxe.table.expLoading'), status: 'loading', duration: -1 })
+  if (showMsg && modal) {
+    modal.message({ id: msgKey, content: t('vxe.table.expLoading'), status: 'loading', duration: -1 })
   }
   checkFont(fontConf).then(() => {
     if (showMsg) {
