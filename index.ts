@@ -5,7 +5,7 @@ import {
   InterceptorExportParams,
   ColumnConfig,
   TableExportConfig
-} from 'vxe-table/lib/vxe-table'
+} from 'vxe-table'
 import jsPDF from 'jspdf'
 
 const isWin = typeof window !== 'undefined'
@@ -17,7 +17,7 @@ function getCellText (cellValue: any) {
 }
 
 function getFooterCellValue ($table: Table, opts: TableExportConfig, rows: any[], column: ColumnConfig) {
-  const cellValue = XEUtils.toString(rows[$table.$getColumnIndex(column)])
+  const cellValue = XEUtils.toValueString(rows[$table.$getColumnIndex(column)])
   return getCellText(cellValue)
 }
 
@@ -41,7 +41,7 @@ function exportPDF (params: InterceptorExportParams) {
   const { type, filename, isHeader, isFooter, original } = options
   const footList: { [key: string]: any }[] = []
   const headers: any[] = columns.map((column) => {
-    const title = XEUtils.toString(original ? column.property : column.getTitle())
+    const title = XEUtils.toValueString(original ? column.property : column.getTitle())
     const width = column.renderWidth / ratio
     colWidth += width
     return {
@@ -50,11 +50,11 @@ function exportPDF (params: InterceptorExportParams) {
       width
     }
   })
-  let offsetWidth = (colWidth - Math.floor(pdfWidth + dX * 2 * ratio)) / headers.length
+  const offsetWidth = (colWidth - Math.floor(pdfWidth + dX * 2 * ratio)) / headers.length
   headers.forEach((column) => {
     column.width = column.width - offsetWidth
   })
-  let rowList: { [key: string]: any }[] = datas.map((row) => {
+  const rowList: { [key: string]: any }[] = datas.map((row) => {
     const item: { [key: string]: any } = {}
     columns.forEach((column) => {
       item[column.id] = getCellText(treeConfig && column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id])
@@ -94,9 +94,9 @@ function exportPDF (params: InterceptorExportParams) {
       return
     }
     if (options.sheetName) {
-      const title = XEUtils.toString(options.sheetName)
+      const title = XEUtils.toValueString(options.sheetName)
       const textWidth = doc.getTextWidth(title)
-      doc.text(XEUtils.toString(title), (pdfWidth - textWidth) / 2, dY / 2 + 2)
+      doc.text(XEUtils.toValueString(title), (pdfWidth - textWidth) / 2, dY / 2 + 2)
     }
     // 转换数据
     doc.table(dX, dY, rowList.concat(footList), headers, {
@@ -106,13 +106,13 @@ function exportPDF (params: InterceptorExportParams) {
     })
     // 导出 pdf
     doc.save(`${filename}.${type}`)
-    if (showMsg) {
+    if (showMsg && modal) {
       modal.close(msgKey)
-      modal.message({ message: t('vxe.table.expSuccess'), status: 'success' })
+      modal.message({ content: t('vxe.table.expSuccess') as string, status: 'success' })
     }
   }
-  if (showMsg) {
-    modal.message({ id: msgKey, message: t('vxe.table.expLoading'), status: 'loading', duration: -1 })
+  if (showMsg && modal) {
+    modal.message({ id: msgKey, content: t('vxe.table.expLoading') as string, status: 'loading', duration: -1 })
   }
   checkFont(fontConf).then(() => {
     if (showMsg) {
