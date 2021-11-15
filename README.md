@@ -10,7 +10,7 @@
 ## Installing
 
 ```shell
-npm install xe-utils vxe-table vxe-table-plugin-export-pdf jspdf
+npm install xe-utils vxe-table@3 vxe-table-plugin-export-pdf@1 jspdf
 ```
 
 ```javascript
