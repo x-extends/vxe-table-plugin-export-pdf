@@ -59,7 +59,7 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
   const { type, filename, isHeader, isFooter, original } = options
   const footList: { [key: string]: any }[] = []
   const headers: any[] = columns.map((column) => {
-    const title = XEUtils.toValueString(original ? column.property : column.getTitle())
+    const title = XEUtils.toValueString(original ? column.field : column.getTitle())
     const width = column.renderWidth / ratio
     colWidth += width
     return {
