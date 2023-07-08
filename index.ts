@@ -41,11 +41,12 @@ function exportPDF (params: InterceptorExportParams) {
   const { type, filename, isHeader, isFooter, original } = options
   const footList: { [key: string]: any }[] = []
   const headers: any[] = columns.map((column) => {
-    const title = XEUtils.toValueString(original ? column.property : column.getTitle())
-    const width = column.renderWidth / ratio
+    const { id, field, renderWidth, headerExportMethod } = column
+    const title = headerExportMethod ? headerExportMethod({ column, $table }) : (XEUtils.toValueString(original ? field : column.getTitle()))
+    const width = renderWidth / ratio
     colWidth += width
     return {
-      name: column.id,
+      name: id,
       prompt: getCellText(title),
       width
     }
