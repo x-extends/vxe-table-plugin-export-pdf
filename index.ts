@@ -47,8 +47,9 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
   const { $table, options, columns, datas } = params
   const { props } = $table
   const { treeConfig } = props
-  const { computeTreeOpts } = $table.getComputeMaps()
+  const { computeColumnOpts, computeTreeOpts } = $table.getComputeMaps()
   const treeOpts = computeTreeOpts.value
+  const columnOpts = computeColumnOpts.value
   const dX = 7
   const dY = 15.8
   const ratio = 3.78
@@ -59,8 +60,9 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
   const { type, filename, isHeader, isFooter, original } = options
   const footList: { [key: string]: any }[] = []
   const headers: any[] = columns.map((column) => {
-    const { id, field, renderWidth, headerExportMethod } = column as any
-    const title = headerExportMethod ? headerExportMethod({ column, $table }) : (XEUtils.toValueString(original ? field : column.getTitle()))
+    const { id, field, renderWidth } = column
+    const headExportMethod = (column as any).headerExportMethod || (columnOpts as any).headerExportMethod
+    const title = headExportMethod ? headExportMethod({ column, options, $table }) : (XEUtils.toValueString(original ? field : column.getTitle()))
     const width = renderWidth / ratio
     colWidth += width
     return {
