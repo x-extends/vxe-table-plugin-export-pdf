@@ -29,7 +29,7 @@ function getFooterData (opts: TableExportConfig, footerData: any[][]) {
 function exportPDF (params: InterceptorExportParams) {
   const { fonts, beforeMethod } = globalOptions
   const { $table, options, columns, datas } = params
-  const { $vxe, treeConfig, treeOpts } = $table
+  const { $vxe, treeConfig, treeOpts, columnOpts } = $table
   const { modal, t } = $vxe
   const dX = 7
   const dY = 15.8
@@ -41,8 +41,9 @@ function exportPDF (params: InterceptorExportParams) {
   const { type, filename, isHeader, isFooter, original } = options
   const footList: { [key: string]: any }[] = []
   const headers: any[] = columns.map((column) => {
-    const { id, field, renderWidth, headerExportMethod } = column
-    const title = headerExportMethod ? headerExportMethod({ column, $table }) : (XEUtils.toValueString(original ? field : column.getTitle()))
+    const { id, field, renderWidth } = column
+    const headExportMethod = column.headerExportMethod || columnOpts.headerExportMethod
+    const title = headExportMethod ? headExportMethod({ column, options, $table }) : (XEUtils.toValueString(original ? field : column.getTitle()))
     const width = renderWidth / ratio
     colWidth += width
     return {
