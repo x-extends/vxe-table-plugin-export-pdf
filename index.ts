@@ -169,7 +169,7 @@ declare global {
   }
 }
 
-function setup (options: VXETablePluginExportPDFOptions) {
+function pluginSetup (options: VXETablePluginExportPDFOptions) {
   const { fonts } = Object.assign(globalOptions, options)
   if (fonts) {
     if (isWin) {
@@ -184,8 +184,13 @@ function setup (options: VXETablePluginExportPDFOptions) {
  * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF = {
-  setup,
+  setup: pluginSetup,
   install (vxetable: typeof VXETable, options?: VXETablePluginExportPDFOptions) {
+    // 检查版本
+    if (!/^(2|3)\./.test(vxetable.version)) {
+      console.error('[vxe-table-plugin-export-pdf] Version vxe-table 3.x is required')
+    }
+
     vxetable.setup({
       export: {
         types: {
@@ -197,7 +202,7 @@ export const VXETablePluginExportPDF = {
       'event.export': handleExportEvent
     })
     if (options) {
-      setup(options)
+      pluginSetup(options)
     }
   }
 }
