@@ -1,11 +1,12 @@
 {
   "name": "vxe-table-plugin-export-pdf",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "基于 vxe-table 的表格插件，支持导出 pdf 格式",
   "scripts": {
     "lib": "gulp build"
   },
   "files": [
+    "types",
     "fonts/source-han-sans-bold.js",
     "fonts/source-han-sans-normal.js",
     "dist",
@@ -16,7 +17,7 @@
   "unpkg": "dist/index.umd.js",
   "jsdelivr": "dist/index.umd.js",
   "style": "dist/style.css",
-  "typings": "index.ts",
+  "typings": "types/index.d.ts",
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/plugin-transform-runtime": "^7.12.1",
@@ -52,7 +53,7 @@
     "sass": "^1.55.0",
     "typescript": "^4.6.4",
     "vue": "^2.6.14",
-    "vxe-table": "^3.7.1",
+    "vxe-table": "^3.7.2",
     "xe-utils": "^3.5.13"
   },
   "peerDependencies": {

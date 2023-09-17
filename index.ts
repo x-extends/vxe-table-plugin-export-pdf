@@ -1,6 +1,6 @@
 import XEUtils from 'xe-utils'
 import {
-  VXETable,
+  VXETableCore,
   Table,
   InterceptorExportParams,
   ColumnConfig,
@@ -185,7 +185,7 @@ function pluginSetup (options: VXETablePluginExportPDFOptions) {
  */
 export const VXETablePluginExportPDF = {
   setup: pluginSetup,
-  install (vxetable: typeof VXETable, options?: VXETablePluginExportPDFOptions) {
+  install (vxetable: VXETableCore, options?: VXETablePluginExportPDFOptions) {
     // 检查版本
     if (!/^(2|3)\./.test(vxetable.version)) {
       console.error('[vxe-table-plugin-export-pdf] Version vxe-table 3.x is required')
