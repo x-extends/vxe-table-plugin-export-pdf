@@ -5,8 +5,8 @@ import jsPDF from 'jspdf'
 let vxetable: VXETableCore
 
 declare module 'vxe-table' {
-  namespace VxeTablePropTypes {
-    interface ExportConfig {
+  export namespace VxeTablePropTypes {
+    export interface ExportConfig {
       fontName?: string;
     }
   }
@@ -174,23 +174,24 @@ function pluginSetup (options: VXETablePluginExportPDFOptions) {
 }
 
 /**
- * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
+ * 基于 vxe-table 表格的扩展插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF = {
   setup: pluginSetup,
-  install (vxetablecore: VXETableCore, options?: VXETablePluginExportPDFOptions) {
-    const { setup, interceptor } = vxetablecore
+  install (vxetable: VXETableCore, options?: VXETablePluginExportPDFOptions) {
+    // 检查版本
+    if (!/^(4)\./.test(vxetable.version)) {
+      console.error('[vxe-table-plugin-export-pdf] Version vxe-table 4.x is required')
+    }
 
-    vxetable = vxetablecore
-
-    setup({
+    vxetable.setup({
       export: {
         types: {
           pdf: 1
         }
       }
     })
-    interceptor.mixin({
+    vxetable.interceptor.mixin({
       'event.export': handleExportEvent
     })
     if (options) {
