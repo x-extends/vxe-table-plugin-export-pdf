@@ -1,8 +1,9 @@
 import XEUtils from 'xe-utils'
 import { VXETableCore, VxeTableConstructor, VxeTablePropTypes, VxeTableDefines, VxeGlobalInterceptorHandles } from 'vxe-table'
-import jsPDF from 'jspdf'
+import type jsPDF from 'jspdf'
 
 let vxetable: VXETableCore
+let globalJsPDF: any
 
 declare module 'vxe-table' {
   export namespace VxeTablePropTypes {
@@ -19,6 +20,7 @@ interface VXETablePluginExportPDFFonts {
 }
 
 interface VXETablePluginExportPDFOptions {
+  jspdf?: any
   fontName?: string;
   fonts?: VXETablePluginExportPDFFonts[];
   beforeMethod?: Function;
@@ -95,12 +97,17 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
   }
   let fontConf: VXETablePluginExportPDFFonts | null | undefined
   const fontName = options.fontName || globalOptions.fontName
-  if (fonts && fontName) {
-    fontConf = fonts.find(item => item.fontName === fontName)
+  if (fonts) {
+    if (fontName) {
+      fontConf = fonts.find(item => item.fontName === fontName)
+    }
+    if (!fontConf) {
+      fontConf = fonts[0]
+    }
   }
   const exportMethod = () => {
     /* eslint-disable new-cap */
-    const doc = new jsPDF({ orientation: 'landscape' })
+    const doc: jsPDF = new (globalJsPDF || (window as any).jspdf)({ orientation: 'landscape' })
     // 设置字体
     doc.setFontSize(10)
     doc.internal.pageSize.width = pdfWidth
@@ -177,14 +184,16 @@ function pluginSetup (options: VXETablePluginExportPDFOptions) {
  * 基于 vxe-table 表格的扩展插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF = {
-  setup: pluginSetup,
+  config: pluginSetup,
   install (vxetable: VXETableCore, options?: VXETablePluginExportPDFOptions) {
     // 检查版本
     if (!/^(4)\./.test(vxetable.version)) {
       console.error('[vxe-table-plugin-export-pdf] Version vxe-table 4.x is required')
     }
 
-    vxetable.setup({
+    globalJsPDF = options ? options.jspdf : null
+
+    vxetable.config({
       export: {
         types: {
           pdf: 1

@@ -14,16 +14,23 @@
 ## Installing
 
 ```shell
-npm install xe-utils vxe-table@next vxe-table-plugin-export-pdf@next jspdf
+npm install vxe-table@next vxe-table-plugin-export-pdf@next jspdf
 ```
 
 ```javascript
 // ...
 import VXETable from 'vxe-table'
 import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
+import jspdf from 'jspdf'
 // ...
 
-VXETable.use(VXETablePluginExportPDF)
+// 方式1：NPM 安装，注入 jspdf 对象
+VXETable.use(VXETablePluginExportPDF, {
+  jspdf
+})
+
+// 方式2：CDN 安装，只要确保 window.jspdf 存在即可
+// VXETable.use(VXETablePluginExportPDF)
 ```
 
 ## Options
@@ -50,10 +57,11 @@ VXETable.use(VXETablePluginExportPDF)
 
 ```javascript
 // ...
+import VXETable from 'vxe-table'
 import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
 // ...
 
-VXETablePluginExportPDF.setup({
+VXETable.use(VXETablePluginExportPDF, {
   // Set default font
   fontName: 'SourceHanSans-Normal',
   // Font maps
@@ -102,9 +110,9 @@ export default {
   methods: {
     exportEvent() {
       this.$refs.xTable.exportData({
+        // fontName: 'SourceHanSans-Normal', // Set the font, default first
         filename: 'MyExport',
-        type: 'pdf',
-        fontName: 'SourceHanSans-Normal' // Set font
+        type: 'pdf'
       })
     }
   }
