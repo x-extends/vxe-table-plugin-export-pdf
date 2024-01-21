@@ -21,15 +21,15 @@ npm install vxe-table@next vxe-table-plugin-export-pdf@next jspdf
 // ...
 import VXETable from 'vxe-table'
 import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
-import jspdf from 'jspdf'
+import { jsPDF } from 'jspdf'
 // ...
 
-// 方式1：NPM 安装，注入 jspdf 对象
+// 方式1：NPM 安装，注入 jsPDF 对象
 VXETable.use(VXETablePluginExportPDF, {
-  jspdf
+  jsPDF
 })
 
-// 方式2：CDN 安装，只要确保 window.jspdf 存在即可
+// 方式2：CDN 安装，只要确保 window.jsPDF 存在即可
 // VXETable.use(VXETablePluginExportPDF)
 ```
 
@@ -54,27 +54,6 @@ VXETable.use(VXETablePluginExportPDF, {
 | SourceHanSans-Medium | [source-han-sans-medium.js](https://github.com/x-extends/vxe-table-plugin-export-pdf/tree/master/fonts) |
 | SourceHanSans-Bold | [source-han-sans-bold.js](https://github.com/x-extends/vxe-table-plugin-export-pdf/tree/master/fonts) |
 | SourceHanSans-Heavy | [source-han-sans-heavy.js](https://github.com/x-extends/vxe-table-plugin-export-pdf/tree/master/fonts) |
-
-```javascript
-// ...
-import VXETable from 'vxe-table'
-import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
-// ...
-
-VXETable.use(VXETablePluginExportPDF, {
-  // Set default font
-  fontName: 'SourceHanSans-Normal',
-  // Font maps
-  fonts: [
-    {
-      // Font name
-      fontName: 'SourceHanSans-Normal',
-      // Font library url
-      fontUrl: 'https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-normal.js'
-    }
-  ]
-})
-```
 
 ## Demo
 

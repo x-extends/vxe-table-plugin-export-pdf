@@ -1,8 +1,8 @@
 import XEUtils from 'xe-utils'
-import { VXETableCore, VxeTableConstructor, VxeTablePropTypes, VxeTableDefines, VxeGlobalInterceptorHandles } from 'vxe-table'
+import type { VXETableCore, VxeTableConstructor, VxeTablePropTypes, VxeTableDefines, VxeGlobalInterceptorHandles } from 'vxe-table'
 import type jsPDF from 'jspdf'
 
-let vxetable: VXETableCore
+let globalVxetable: VXETableCore
 let globalJsPDF: any
 
 declare module 'vxe-table' {
@@ -20,7 +20,7 @@ interface VXETablePluginExportPDFFonts {
 }
 
 interface VXETablePluginExportPDFOptions {
-  jspdf?: any
+  jsPDF?: any
   fontName?: string;
   fonts?: VXETablePluginExportPDFFonts[];
   beforeMethod?: Function;
@@ -44,7 +44,7 @@ function getFooterData (opts: VxeTablePropTypes.ExportConfig, footerData: any[][
 }
 
 function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams) {
-  const { modal, t } = vxetable
+  const { modal, t } = globalVxetable
   const { fonts, beforeMethod } = globalOptions
   const { $table, options, columns, datas } = params
   const { props } = $table
@@ -107,7 +107,7 @@ function exportPDF (params: VxeGlobalInterceptorHandles.InterceptorExportParams)
   }
   const exportMethod = () => {
     /* eslint-disable new-cap */
-    const doc: jsPDF = new (globalJsPDF || (window as any).jspdf)({ orientation: 'landscape' })
+    const doc: jsPDF = new (globalJsPDF || ((window as any).jspdf ? (window as any).jspdf.jsPDF : (window as any).jsPDF))({ orientation: 'landscape' })
     // 设置字体
     doc.setFontSize(10)
     doc.internal.pageSize.width = pdfWidth
@@ -191,7 +191,8 @@ export const VXETablePluginExportPDF = {
       console.error('[vxe-table-plugin-export-pdf] Version vxe-table 4.x is required')
     }
 
-    globalJsPDF = options ? options.jspdf : null
+    globalVxetable = vxetable
+    globalJsPDF = options ? options.jsPDF : null
 
     vxetable.config({
       export: {
