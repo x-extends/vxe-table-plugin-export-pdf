@@ -14,16 +14,23 @@
 ## Installing
 
 ```shell
-npm install xe-utils vxe-table@3 vxe-table-plugin-export-pdf@1 jspdf
+npm install vxe-table@legacy vxe-table-plugin-export-pdf@legacy jspdf
 ```
 
 ```javascript
 // ...
 import VXETable from 'vxe-table'
 import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
+import { jsPDF } from 'jspdf'
 // ...
 
-VXETable.use(VXETablePluginExportPDF)
+// 方式1：NPM 安装，注入 jsPDF 对象
+VXETable.use(VXETablePluginExportPDF, {
+  jsPDF
+})
+
+// 方式2：CDN 安装，只要确保 window.jsPDF 存在即可
+// VXETable.use(VXETablePluginExportPDF)
 ```
 
 ## Options
