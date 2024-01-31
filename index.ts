@@ -6,7 +6,22 @@ import {
   ColumnConfig,
   TableExportConfig
 } from 'vxe-table'
-import jsPDF from 'jspdf'
+import type jsPDF from 'jspdf'
+
+let globalJsPDF: any
+
+interface VXETablePluginExportPDFFonts {
+  fontName: string;
+  fontStyle?: 'normal';
+  fontUrl: string;
+}
+
+interface VXETablePluginExportPDFOptions {
+  jsPDF?: any
+  fontName?: string;
+  fonts?: VXETablePluginExportPDFFonts[];
+  beforeMethod?: Function;
+}
 
 const isWin = typeof window !== 'undefined'
 const globalOptions: VXETablePluginExportPDFOptions = {}
@@ -81,7 +96,7 @@ function exportPDF (params: InterceptorExportParams) {
   }
   const exportMethod = () => {
     /* eslint-disable new-cap */
-    const doc = new jsPDF({ orientation: 'landscape' })
+    const doc: jsPDF = new (globalJsPDF || ((window as any).jspdf ? (window as any).jspdf.jsPDF : (window as any).jsPDF))({ orientation: 'landscape' })
     // 设置字体
     doc.setFontSize(10)
     doc.internal.pageSize.width = pdfWidth
@@ -150,48 +165,24 @@ function handleExportEvent (params: InterceptorExportParams) {
   }
 }
 
-interface VXETablePluginExportPDFFonts {
-  fontName: string;
-  fontStyle?: 'normal';
-  fontUrl: string;
-}
-
-interface VXETablePluginExportPDFOptions {
-  fontName?: string;
-  fonts?: VXETablePluginExportPDFFonts[];
-  beforeMethod?: Function;
-}
-
-declare global {
-  interface Window {
-    jspdf: any;
-    jsPDF: any;
-  }
-}
-
 function pluginSetup (options: VXETablePluginExportPDFOptions) {
-  const { fonts } = Object.assign(globalOptions, options)
-  if (fonts) {
-    if (isWin) {
-      if (!window.jsPDF) {
-        window.jsPDF = window.jspdf ? window.jspdf.jsPDF : jsPDF
-      }
-    }
-  }
+  Object.assign(globalOptions, options)
 }
 
 /**
  * 基于 vxe-table 表格的增强插件，支持导出 pdf 格式
  */
 export const VXETablePluginExportPDF = {
-  setup: pluginSetup,
+  config: pluginSetup,
   install (vxetable: VXETableCore, options?: VXETablePluginExportPDFOptions) {
     // 检查版本
-    if (!/^(2|3)\./.test(vxetable.version)) {
-      console.error('[vxe-table-plugin-export-pdf] Version vxe-table 3.x is required')
+    if (!/^(3)\./.test(vxetable.version)) {
+      console.error('[vxe-table-plugin-export-pdf 3.x] Version vxe-table 3.x is required')
     }
 
-    vxetable.setup({
+    globalJsPDF = options ? options.jsPDF : null
+
+    vxetable.config({
       export: {
         types: {
           pdf: 1

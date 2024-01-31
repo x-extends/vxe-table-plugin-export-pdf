@@ -7,6 +7,7 @@ interface VXETablePluginExportPDFFonts {
 }
 
 interface VXETablePluginExportPDFOptions {
+  jsPDF?: any
   fontName?: string;
   fonts?: VXETablePluginExportPDFFonts[];
   beforeMethod?: Function;
