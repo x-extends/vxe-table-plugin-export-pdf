@@ -195,11 +195,19 @@ export const VXETablePluginExportPDF = {
     globalJsPDF = options ? options.jsPDF : null
 
     vxetable.config({
+      table: {
+        exportConfig: {
+          _typeMaps: {
+            xlsx: 1
+          }
+        } as any
+      },
+      // 兼容老版本
       export: {
         types: {
           pdf: 1
         }
-      }
+      } as any
     })
     vxetable.interceptor.mixin({
       'event.export': handleExportEvent
