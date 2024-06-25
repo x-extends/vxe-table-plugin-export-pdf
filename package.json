@@ -1,6 +1,6 @@
 {
   "name": "vxe-table-plugin-export-pdf",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "基于 vxe-table 表格的扩展插件，支持导出 pdf 格式",
   "scripts": {
     "lib": "gulp build"
@@ -52,7 +52,7 @@
     "prettier": "^2.1.2",
     "sass": "^1.55.0",
     "typescript": "^4.6.4",
-    "vue": "^3.4.23",
+    "vue": "^3.4.27",
     "vxe-table": "^4.6.17"
   },
   "peerDependencies": {

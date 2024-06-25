@@ -194,11 +194,12 @@ export const VXETablePluginExportPDF = {
     globalVxetable = vxetable
     globalJsPDF = options ? options.jsPDF : null
 
-    vxetable.config({
+    const setConfig = vxetable.setConfig || vxetable.config
+    setConfig({
       table: {
         exportConfig: {
           _typeMaps: {
-            xlsx: 1
+            pdf: 1
           }
         } as any
       },
