@@ -1,11 +1,5 @@
 import XEUtils from 'xe-utils'
-import {
-  VXETableCore,
-  Table,
-  InterceptorExportParams,
-  ColumnConfig,
-  TableExportConfig
-} from 'vxe-table'
+import { VXETableCore } from 'vxe-table'
 import type jsPDF from 'jspdf'
 
 let globalJsPDF: any
@@ -31,17 +25,17 @@ function getCellText (cellValue: any) {
   return cellValue || ' '
 }
 
-function getFooterCellValue ($table: Table, opts: TableExportConfig, rows: any[], column: ColumnConfig) {
+function getFooterCellValue ($table: any, opts: any, rows: any[], column: any) {
   const cellValue = XEUtils.toValueString(rows[$table.$getColumnIndex(column)])
   return getCellText(cellValue)
 }
 
-function getFooterData (opts: TableExportConfig, footerData: any[][]) {
+function getFooterData (opts: any, footerData: any[][]) {
   const { footerFilterMethod } = opts
   return footerFilterMethod ? footerData.filter((items, index) => footerFilterMethod({ items, $rowIndex: index })) : footerData
 }
 
-function exportPDF (params: InterceptorExportParams) {
+function exportPDF (params: any) {
   const { fonts, beforeMethod } = globalOptions
   const { $table, options, columns, datas } = params
   const { $vxe, treeConfig, treeOpts, columnOpts } = $table
@@ -55,7 +49,7 @@ function exportPDF (params: InterceptorExportParams) {
   const showMsg = options.message !== false
   const { type, filename, isHeader, isFooter, original } = options
   const footList: { [key: string]: any }[] = []
-  const headers: any[] = columns.map((column) => {
+  const headers: any[] = columns.map((column: any) => {
     const { id, field, renderWidth } = column
     const headExportMethod = column.headerExportMethod || columnOpts.headerExportMethod
     const title = headExportMethod ? headExportMethod({ column, options, $table }) : (XEUtils.toValueString(original ? field : column.getTitle()))
@@ -71,9 +65,9 @@ function exportPDF (params: InterceptorExportParams) {
   headers.forEach((column) => {
     column.width = column.width - offsetWidth
   })
-  const rowList: { [key: string]: any }[] = datas.map((row) => {
+  const rowList: { [key: string]: any }[] = datas.map((row: any) => {
     const item: { [key: string]: any } = {}
-    columns.forEach((column) => {
+    columns.forEach((column: any) => {
       item[column.id] = getCellText(treeConfig && column.treeNode ? (' '.repeat(row._level * treeOpts.indent / 8) + row[column.id]) : row[column.id])
     })
     return item
@@ -83,7 +77,7 @@ function exportPDF (params: InterceptorExportParams) {
     const footers = getFooterData(options, footerData)
     footers.forEach(rows => {
       const item: { [key: string]: any } = {}
-      columns.forEach((column) => {
+      columns.forEach((column: any) => {
         item[column.id] = getFooterCellValue($table, options, rows, column)
       })
       footList.push(item)
@@ -158,7 +152,7 @@ function checkFont (fontConf?: VXETablePluginExportPDFFonts | null | undefined) 
   return Promise.resolve()
 }
 
-function handleExportEvent (params: InterceptorExportParams) {
+function handleExportEvent (params: any) {
   if (params.options.type === 'pdf') {
     exportPDF(params)
     return false
