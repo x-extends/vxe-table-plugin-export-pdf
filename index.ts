@@ -25,9 +25,13 @@ function getCellText (cellValue: any) {
   return cellValue || ' '
 }
 
-function getFooterCellValue ($table: any, opts: any, rows: any[], column: any) {
-  const cellValue = XEUtils.toValueString(rows[$table.$getColumnIndex(column)])
-  return getCellText(cellValue)
+function getFooterCellValue ($xeTable: any, opts: any, row: any, column: any) {
+  const _columnIndex = $xeTable.getVTColumnIndex(column)
+  // 兼容老模式
+  if (XEUtils.isArray(row)) {
+    return getCellText(row[_columnIndex])
+  }
+  return getCellText(XEUtils.get(row, column.field))
 }
 
 function getFooterData (opts: any, footerData: any[][]) {
